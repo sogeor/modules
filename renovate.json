@@ -36,7 +36,8 @@
       "matchDepTypes": [
         "provider",
         "required_provider"
-      ]
+      ],
+      "minimumReleaseAge": "7 days"
     },
     {
       "groupName": "pre-commit hooks",
