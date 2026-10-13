@@ -78,7 +78,8 @@ Check: after the next push to `master` the **scorecard** run succeeds and the Br
 
 1. Install the [Renovate GitHub App](https://github.com/apps/renovate) → **Configure** → `<owner>` →
    **Only select repositories** → this repository.
-2. The configuration is already in `renovate.json`: no automerge, Conventional Commit titles, grouped
+2. The configuration is already in `renovate.json`: no automerge, a 7-day minimum release age for every
+   update (security fixes bypass it), Conventional Commit titles, grouped
    updates (GitHub Actions, Python tools, OpenTofu providers, pre-commit hooks), SHA-pinned pre-commit hooks,
    hash-locked Python requirements.
 
