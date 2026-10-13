@@ -1,0 +1,74 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "automerge": false,
+  "semanticCommits": "enabled",
+  "pinDigests": true,
+  "labels": [
+    "dependencies"
+  ],
+  "pre-commit": {
+    "enabled": false
+  },
+  "packageRules": [
+    {
+      "groupName": "github-actions",
+      "matchManagers": [
+        "github-actions"
+      ]
+    },
+    {
+      "groupName": "python tools",
+      "matchManagers": [
+        "pip-compile",
+        "pip_requirements"
+      ]
+    },
+    {
+      "groupName": "opentofu providers",
+      "matchManagers": [
+        "terraform"
+      ],
+      "matchDepTypes": [
+        "provider",
+        "required_provider"
+      ]
+    },
+    {
+      "groupName": "pre-commit hooks",
+      "matchFileNames": [
+        ".pre-commit-config.yaml"
+      ]
+    },
+    {
+      "matchDatasources": [
+        "github-runners"
+      ],
+      "enabled": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.pre-commit-config\\.yaml$/"
+      ],
+      "matchStrings": [
+        "repo: https://github\\.com/(?<depName>\\S+)\\s+rev: (?<currentDigest>[0-9a-f]{40}) # (?<currentValue>\\S+)"
+      ],
+      "datasourceTemplate": "github-tags"
+    }
+  ],
+  "pip-compile": {
+    "managerFilePatterns": [
+      "/(^|/)requirements-[a-z]+\\.txt$/"
+    ]
+  },
+  "pip_requirements": {
+    "enabled": false
+  }
+}

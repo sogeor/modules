@@ -1,0 +1,22 @@
+name: docs
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    uses: sogeor/workflows/.github/workflows/docs.yml@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
+    with:
+      link-args: >-
+        --exclude-path .build
+        --exclude '^https://github\.com/sogeor/modules/(security|issues/new)'

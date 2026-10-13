@@ -1,0 +1,32 @@
+# Security
+
+## What is guaranteed
+
+| Property | How |
+|---|---|
+| No secrets in the repository | gitleaks in pre-commit and CI, push protection |
+| No personal values | Addresses, domains, IDs are variables without defaults; examples use RFC 5737 and `example.com` |
+| Pinned dependencies | Exact provider versions, actions by full SHA, hash-locked Python tools, checksum-verified binaries |
+| Invalid clusters are rejected before any resource exists | JSON Schema and validations of the cluster description (with `cluster-spec`) |
+| Tests never touch infrastructure | `tofu test` with mock providers; CI has no infrastructure credentials |
+| Static analysis | Checkov, Trivy, Semgrep and gitleaks through `security-lite` |
+| Sensitive outputs | Machine secrets, talosconfig and kubeconfig are `sensitive = true` |
+
+## What is not guaranteed
+
+- Security of the state where consumers store outputs: state encryption is configured in the root
+  modules of consuming repositories.
+- Correctness of upstream providers and Cluster API providers.
+- Network isolation of created nodes beyond what the module inputs request.
+
+## Assurance case
+
+| Threat | Trust boundary | Mitigation | CWE |
+|---|---|---|---|
+| Credentials leaked through code or logs | repository → public | gitleaks, sensitive outputs, no credentials in CI | CWE-798, CWE-532 |
+| Compromised dependency | registry → CI and consumers | exact pins, SHA pins, hashes, Renovate review | CWE-829 |
+| Malicious workflow change | contributor → CI | minimal `permissions`, `persist-credentials: false`, zizmor, required review via ruleset | CWE-269 |
+| Misconfigured cluster (budget, quorum) | description → infrastructure | validations: `autoscale.max` required, odd control plane for `ha` | CWE-20 |
+
+Principles: least privilege, secure defaults, validation before creation, no static credentials.
+Vulnerability reporting: [SECURITY.md](https://github.com/sogeor/modules/blob/master/SECURITY.md).

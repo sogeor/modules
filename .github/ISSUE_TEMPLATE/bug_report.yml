@@ -1,0 +1,49 @@
+name: Bug report
+description: Something does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report security vulnerabilities here. Use [Private Vulnerability Reporting](https://github.com/sogeor/modules/security/advisories/new).
+        Check [Troubleshooting](https://github.com/sogeor/modules/blob/master/docs/troubleshooting.md) first.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - cluster description / schema
+        - provider module
+        - talos-cluster
+        - capi-cluster
+        - ansible-inventory
+        - policies
+        - CI / tooling
+        - documentation
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Command, actual result, expected result.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant output. Remove tokens, keys, state contents and private addresses.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Tag (for example modules-v0.1.0) or commit SHA.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OpenTofu version, provider versions, target provider (Proxmox VE, OpenStack, BYO).
