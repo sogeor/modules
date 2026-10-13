@@ -8,6 +8,7 @@
   "automerge": false,
   "semanticCommits": "enabled",
   "pinDigests": true,
+  "minimumReleaseAge": "7 days",
   "labels": [
     "dependencies"
   ],
