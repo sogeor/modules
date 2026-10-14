@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `modules/providers/proxmox` (`bpg/proxmox` 0.116.0): VMs for Proxmox pools of OpenTofu clusters; Ubuntu as
+  full clones of the newest tagged template, Talos from the Image Factory ISO with SHA-256 check; static
+  addresses through cloud-init; output `nodes` in the normalized node contract; ADR 0004.
 - Cluster description: JSON Schema `schemas/cluster.schema.json` with invalid fixtures; new optional fields
   `control_plane_multisite` (with a required reason) and `custom_image_supported` for Talos on BYO.
 - `modules/cluster-spec`: validation against the compatibility matrix `matrix.yaml` (rule ids, `violations`,

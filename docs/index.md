@@ -5,7 +5,7 @@ A cluster is described once in YAML; the modules validate the description, creat
 and produce either a Talos cluster, an Ansible inventory or Cluster API manifests from it.
 
 !!! note "Status"
-    The cluster description (schema, `cluster-spec`, reference clusters, policies) is ready; the other modules
+    The cluster description (schema, `cluster-spec`, reference clusters, policies) and `providers/proxmox` are ready; the other modules
     are added one per release in the order of the [module catalog](#module-catalog).
 
 ## Who this is for
@@ -20,7 +20,7 @@ and produce either a Talos cluster, an Ansible inventory or Cluster API manifest
 |---|---|---|
 | `schemas/cluster.schema.json` | JSON Schema of the cluster description | ready (unreleased) |
 | `modules/cluster-spec` | Reads and validates a description, compatibility matrix, derived values (CIDR, sizes) | ready (unreleased) |
-| `modules/providers/proxmox` | Nodes on Proxmox VE from tagged templates or Talos images | planned |
+| `modules/providers/proxmox` | Nodes on Proxmox VE from tagged templates or Talos images | ready (unreleased) |
 | `modules/talos-cluster` | Talos Linux cluster through `siderolabs/talos` | planned |
 | `modules/providers/byo` | Registration of existing servers | planned |
 | `modules/ansible-inventory` | Ansible inventory from node contracts | planned |

@@ -68,6 +68,37 @@ The cluster description is invalid:
 - [os-distribution] pool cp: os ubuntu-2404 is not allowed for distribution talos (allowed: talos)
 ```
 
+## Create nodes on Proxmox VE
+
+Goal: VMs for the Proxmox pools of a cluster created by OpenTofu (for example the management cluster).
+
+Preconditions: a Proxmox API token with the privileges from [Configuration](configuration.md#proxmox-api-token);
+for Ubuntu pools, a template from [images](https://github.com/sogeor/images) on the node; for Talos pools, the
+schematic ID and ISO checksum.
+
+```hcl
+module "spec" {
+  source  = "git::https://github.com/sogeor/modules.git//modules/cluster-spec?ref=modules-v0.1.0"
+  cluster = yamldecode(file("${path.root}/clusters/mgmt.yaml"))
+}
+
+module "nodes" {
+  source = "git::https://github.com/sogeor/modules.git//modules/providers/proxmox?ref=modules-v0.1.0"
+
+  spec      = module.spec.spec
+  proxmox   = { node_name = var.proxmox_node, datastore_id = "local-lvm", bridge = "vmbr0" }
+  network   = { prefix_length = 24, gateway = var.gateway, dns_servers = [var.gateway], domain = var.domain }
+  addresses = { cp = var.cp_addresses }
+  talos     = var.talos
+}
+```
+
+Expected after apply: one VM per node, named `<cluster>-<pool>-<index>`, running, with the given address;
+`module.nodes.nodes` lists them in the node contract. Talos VMs wait in maintenance mode until `talos-cluster`
+applies the configuration.
+
+Check: in the Proxmox web UI the VMs carry the tags `sogeor`, the cluster and the pool name.
+
 ## Mark an image as available
 
 When [images](https://github.com/sogeor/images) builds a new (OS, provider) image, change its status in
