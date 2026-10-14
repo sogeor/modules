@@ -133,6 +133,75 @@ conftest test --policy policies/conftest/cluster --data modules/cluster-spec/mat
 
 `deny` results fail; `warn` results (planned images) are printed only.
 
+## providers/proxmox
+
+Source: `modules/providers/proxmox`. Generated reference: `modules/providers/proxmox/README.md`.
+Provider: `bpg/proxmox` 0.116.0, configured by the caller.
+
+The module acts only when `spec.mechanism` is `opentofu` and only on pools with `provider: proxmox`; for other
+clusters it returns no nodes.
+
+### Inputs
+
+| Name | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `spec` | object | — | yes | `module.<name>.spec` of `cluster-spec` | `module.spec.spec` |
+| `proxmox.node_name` | string | — | yes | Proxmox VE node that runs the VMs | `pve` |
+| `proxmox.datastore_id` | string | — | yes | Datastore for system, EFI and cloud-init disks | `local-lvm` |
+| `proxmox.iso_datastore_id` | string | `local` | no | Datastore with `iso` content for the Talos ISO | `local` |
+| `proxmox.cloud_init_datastore_id` | string | `proxmox.datastore_id` | no | Datastore for the cloud-init drive | `local-lvm` |
+| `proxmox.bridge` | string | — | yes | Network bridge | `vmbr0` |
+| `proxmox.vlan_id` | number 1–4094 | none | no | VLAN tag | `30` |
+| `proxmox.cpu_type` | string | `host` | no | QEMU CPU type | `x86-64-v2-AES` |
+| `network.prefix_length` | number 8–30 | — | yes | Prefix length of node addresses | `24` |
+| `network.gateway` | IPv4 | — | yes | Default gateway | `203.0.113.1` |
+| `network.dns_servers` | list of IPv4 | — | yes | DNS servers | `["203.0.113.1"]` |
+| `network.domain` | DNS name | — | yes | Domain for FQDNs and DNS search | `lab.example.com` |
+| `addresses` | map(list(IPv4)) | — | yes | Addresses per pool; node N gets element N-1; unique across pools | `{ cp = ["203.0.113.31"] }` |
+| `ssh.user`, `ssh.public_keys` | string, list | `null` | for non-Talos pools | cloud-init user and keys | `{ user = "ops", public_keys = ["ssh-ed25519 AAAA…"] }` |
+| `talos.version` | string | `null` | for Talos pools | Talos version | `v1.14.2` |
+| `talos.schematic_id` | 64 hex | `null` | for Talos pools | Image Factory schematic ID (from `images/talos`) | `CHANGE_ME` |
+| `talos.iso_sha256` | 64 hex | `null` | for Talos pools | SHA-256 of `nocloud-amd64.iso` | `CHANGE_ME` |
+| `image_factory_url` | https URL | `https://factory.talos.dev` | no | Image Factory, for a mirror | `https://factory.example.com` |
+| `tags` | list(string) | `[]` | no | Extra Proxmox tags | `["lab"]` |
+
+Get the ISO checksum once per schematic and version:
+
+```bash
+curl -fsSL https://factory.talos.dev/image/<schematic_id>/<version>/nocloud-amd64.iso | sha256sum
+```
+
+### Outputs
+
+| Name | Description |
+|---|---|
+| `nodes` | Map `<pool>-<index>` → normalized node ([Architecture](architecture.md#normalized-node)) plus `vm_id` |
+| `templates` | Selected template per OS: `name`, `vm_id`, `node_name` |
+| `clone_sources` | Template VM ID each Ubuntu node is cloned from at creation |
+| `talos_iso` | Proxmox file ID of the Talos ISO, or `null` |
+
+### What each VM gets
+
+| Setting | Value |
+|---|---|
+| Name | `<cluster>-<pool>-<index>`, for example `mgmt-cp-1` |
+| Tags | `sogeor`, cluster, pool, role, OS, plus `tags` |
+| Firmware | `q35`, OVMF (UEFI) with a 4M EFI disk, VirtIO SCSI single |
+| CPU, memory, disk | From the size: cores, dedicated memory (no ballooning), `scsi0` with discard, SSD emulation, iothread |
+| Ubuntu | Full clone of the newest template with tags `packer;<os>;k8s;k8s-<major>-<minor>` (kubeadm) or `packer;<os>;base` (k3s); only names ending in `-v<run>-<attempt>` are considered |
+| Talos | Image Factory ISO on `ide0`, boot order disk then ISO, cloud-init on `ide2` |
+| Network | One VirtIO NIC; static IPv4, gateway, DNS through cloud-init |
+| Lifecycle | Starts on boot; a newer template or ISO does not replace existing VMs |
+
+### Proxmox API token
+
+The caller configures the provider (for example `PROXMOX_VE_ENDPOINT` and `PROXMOX_VE_API_TOKEN`). The token
+needs, on `/` or narrower paths: `VM.Allocate`, `VM.Clone`, `VM.Audit`, `VM.Config.CDROM`, `VM.Config.CPU`,
+`VM.Config.Cloudinit`, `VM.Config.Disk`, `VM.Config.HWType`, `VM.Config.Memory`, `VM.Config.Network`,
+`VM.Config.Options`, `VM.Monitor`, `VM.PowerMgmt`, `Datastore.Allocate`, `Datastore.AllocateSpace`,
+`Datastore.AllocateTemplate`, `Datastore.Audit`, `Sys.Audit`, `Sys.AccessNetwork` (ISO download by URL),
+`SDN.Use`. A token created with `--privsep 1` needs its own ACL entry.
+
 ## CI
 
 | Workflow | Trigger | Inputs | Secrets |

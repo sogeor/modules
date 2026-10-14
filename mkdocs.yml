@@ -62,3 +62,4 @@ nav:
       - "0001 Record architecture decisions": adr/0001-record-architecture-decisions.md
       - "0002 Repository layout": adr/0002-repository-layout.md
       - "0003 Cluster description validation": adr/0003-cluster-description-validation.md
+      - "0004 Proxmox VE nodes": adr/0004-proxmox-nodes.md

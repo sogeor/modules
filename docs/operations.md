@@ -44,6 +44,22 @@ python3 -m piptools compile --quiet --generate-hashes --allow-unsafe --strip-ext
 - If the header contains `--no-index` (local pip configuration), remove it.
 - Add `--upgrade` only to refresh transitive dependencies on purpose; review `git diff` afterwards.
 
+## Move a Proxmox node to a newer template or Talos version
+
+Goal: rebuild one node from the newest template; nodes are replaced on purpose, never by a new template alone.
+
+1. Drain the node in Kubernetes (`kubectl drain <node> --ignore-daemonsets --delete-emptydir-data`).
+2. In the consuming repository, plan the replacement of that VM only:
+
+    ```bash
+    tofu plan -replace='module.nodes.proxmox_virtual_environment_vm.node["workers-1"]'
+    ```
+
+3. Review the plan (one VM replaced, cloned from `module.nodes.templates`), apply it, rejoin the node.
+
+For Talos, change `talos.version` first (a new ISO is downloaded next to the old one); upgrade running nodes with
+`talosctl upgrade` instead of replacing them.
+
 ## Roll back a release
 
 Consumers pin tags, so a faulty release is fixed by a new patch release. Do not move or delete

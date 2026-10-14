@@ -42,6 +42,25 @@ Symptom → cause → fix. Entries are added from real failures.
 - **Fix:** look the rule up in [Configuration](configuration.md#rules). For `image-planned`, wait for the image
   or set `allow_planned_images = true` only for a test environment.
 
+## providers/proxmox: `No template on node … has the tags …`
+
+- **Cause:** no template with all the tags exists on that node, or its name does not end in `-v<run>-<attempt>`
+  (local builds such as `-vtest` are ignored); for kubeadm the `k8s-<major>-<minor>` tag must match
+  `kubernetes_version`.
+- **Fix:** build the image in [images](https://github.com/sogeor/images) for that Kubernetes version, or align
+  `kubernetes_version` with the newest template.
+
+## providers/proxmox: `401`, `403` or `501` from the Proxmox API
+
+- **Cause:** the token lacks a privilege, or a token with privilege separation has no ACL entry of its own.
+- **Fix:** grant the role from [Configuration](configuration.md#proxmox-api-token) to the token itself
+  (`pveum aclmod / -token '<user>!<token>' -role <role>`).
+
+## providers/proxmox: checksum mismatch when downloading the Talos ISO
+
+- **Cause:** `talos.iso_sha256` belongs to another schematic or version.
+- **Fix:** recompute it with the command in [Configuration](configuration.md#providersproxmox) for the exact schematic and version.
+
 ## Renovate does not update a Python lock file
 
 - **Cause:** the pip-compile header is missing or contains `--no-index`.
