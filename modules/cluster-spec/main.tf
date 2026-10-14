@@ -52,10 +52,6 @@ locals {
       message = "pool ${name}: the image for os ${p.os} on provider ${p.provider} is planned, not available"
     } if local.image_status[name] == "planned" && !var.allow_planned_images],
 
-    [for name, p in local.pools : {
-      rule    = "experimental-os"
-      message = "pool ${name}: os ${p.os} is experimental and requires allow_experimental: true"
-    } if contains(local.matrix.experimental_os, p.os) && !local.c.allow_experimental],
 
     [for name, p in local.pools : {
       rule    = "talos-byo-custom-image"

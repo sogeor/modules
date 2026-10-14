@@ -15,8 +15,8 @@ the OS is chosen per pool, so a kubeadm cluster may mix OS across pools.
 | Distribution | Allowed pool OS |
 |---|---|
 | `talos` | `talos` |
-| `kubeadm` | `ubuntu-2404`, `ubuntu-2604`, `astra-18`, `alpine` |
-| `k3s` | `ubuntu-2404`, `ubuntu-2604`, `astra-18`, `alpine` |
+| `kubeadm` | `ubuntu-2404`, `ubuntu-2604`, `astra-18` |
+| `k3s` | `ubuntu-2404`, `ubuntu-2604`, `astra-18` |
 
 ## Validation layers
 

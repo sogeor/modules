@@ -42,12 +42,6 @@ test_image_planned_is_warning if {
 	"image-planned" in rules(warn) with input as cluster
 }
 
-test_experimental_os if {
-	cluster := object.union(cp({"os": "alpine", "provider": "byo"}), {"distribution": "k3s"})
-	"experimental-os" in rules(deny) with input as cluster
-	count(deny) == 0 with input as object.union(cluster, {"allow_experimental": true})
-}
-
 test_talos_byo_custom_image if {
 	cluster := object.union(cp({"os": "talos", "provider": "byo", "site": "vds"}), {"distribution": "talos"})
 	"talos-byo-custom-image" in rules(deny) with input as cluster

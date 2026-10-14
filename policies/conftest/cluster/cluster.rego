@@ -12,8 +12,6 @@ mechanism := object.get(input, "mechanism", default_mechanism)
 
 profiles := object.get(input, "profiles", ["core"])
 
-allow_experimental := object.get(input, "allow_experimental", false)
-
 multisite_enabled := object.get(input, ["control_plane_multisite", "enabled"], false)
 
 multisite_reason := trim_space(object.get(input, ["control_plane_multisite", "reason"], ""))
@@ -69,12 +67,6 @@ deny contains sprintf("[image-unsupported] pool %s: no image exists or is planne
 warn contains sprintf("[image-planned] pool %s: the image for os %s on provider %s is planned, not available", [name, p.os, p.provider]) if {
 	some name, p in input.pools
 	image_status(p) == "planned"
-}
-
-deny contains sprintf("[experimental-os] pool %s: os %s is experimental and requires allow_experimental: true", [name, p.os]) if {
-	some name, p in input.pools
-	p.os in matrix.experimental_os
-	not allow_experimental
 }
 
 deny contains sprintf("[talos-byo-custom-image] pool %s: talos on byo requires custom_image_supported: true", [name]) if {

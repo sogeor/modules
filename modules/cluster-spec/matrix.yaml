@@ -3,11 +3,9 @@ matrix:
     talos:
       os: [talos]
     kubeadm:
-      os: [ubuntu-2404, ubuntu-2604, astra-18, alpine]
+      os: [ubuntu-2404, ubuntu-2604, astra-18]
     k3s:
-      os: [ubuntu-2404, ubuntu-2604, astra-18, alpine]
-
-  experimental_os: [alpine]
+      os: [ubuntu-2404, ubuntu-2604, astra-18]
 
   providers:
     proxmox:
@@ -51,11 +49,6 @@ matrix:
       byo: available
     astra-18:
       proxmox: planned
-      byo: available
-    alpine:
-      proxmox: planned
-      selectel: planned
-      vkcloud: planned
       byo: available
 
   sizes:

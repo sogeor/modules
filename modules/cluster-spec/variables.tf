@@ -8,7 +8,6 @@ variable "cluster" {
     topology           = string
     profiles           = optional(list(string), ["core"])
     mechanism          = optional(string)
-    allow_experimental = optional(bool, false)
     control_plane_multisite = optional(object({
       enabled = bool
       reason  = optional(string, "")
