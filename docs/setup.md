@@ -42,7 +42,7 @@ When typing topics, finish each with **Space**: Enter picks the highlighted sugg
 | Restrict deletions | on |
 | Require signed commits | on |
 | Require a pull request before merging | on, Required approvals `0` |
-| Require status checks to pass | on, **Require branches to be up to date**; checks `linters`, `security / gitleaks`, `security / trivy`, `security / semgrep`, `security / checkov`, `docs / docs` |
+| Require status checks to pass | on, **Require branches to be up to date**; checks `linters`, `opentofu`, `policies`, `security / gitleaks`, `security / trivy`, `security / semgrep`, `security / checkov`, `docs / docs` |
 | Block force pushes | on |
 
 Status checks appear in **Add checks** only after they have run at least once.

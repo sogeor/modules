@@ -18,6 +18,24 @@ the OS is chosen per pool, so a kubeadm cluster may mix OS across pools.
 | `kubeadm` | `ubuntu-2404`, `ubuntu-2604`, `astra-18`, `alpine` |
 | `k3s` | `ubuntu-2404`, `ubuntu-2604`, `astra-18`, `alpine` |
 
+## Validation layers
+
+```mermaid
+flowchart LR
+  Y[clusters/*.yaml] --> J[JSON Schema<br/>structure]
+  Y --> R[Conftest<br/>compatibility, in CI]
+  Y --> S[cluster-spec<br/>compatibility, at plan time]
+  X[(matrix.yaml)] --> R
+  X --> S
+  X -. enums checked .- J
+```
+
+- **JSON Schema** rejects unknown fields, wrong types and values outside the enums.
+- **Conftest** and **cluster-spec** apply the same rules with the same ids, reading the same matrix. Conftest
+  checks descriptions in pull requests without OpenTofu; `cluster-spec` stops a plan in the consuming repository.
+- Planned images differ on purpose: Conftest warns, `cluster-spec` fails unless `allow_planned_images = true`,
+  so reference descriptions can exist before their images while deployment still needs a real image.
+
 ## Data flow
 
 ```mermaid
@@ -86,5 +104,6 @@ New images do not replace existing nodes.
 
 ## Decisions
 
-See [Decisions](adr/index.md), in particular [0002 Repository layout](adr/0002-repository-layout.md).
+See [Decisions](adr/index.md), in particular [0002 Repository layout](adr/0002-repository-layout.md) and
+[0003 Cluster description validation](adr/0003-cluster-description-validation.md).
 Platform-wide decisions (constructor, Cluster API, topology) are in the [docs](https://github.com/sogeor/docs) repository.

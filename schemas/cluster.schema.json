@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sogeor/modules/blob/master/schemas/cluster.schema.json",
+  "title": "sogeor cluster description",
+  "description": "Input of the cluster constructor. Compatibility rules (OS per distribution, images, topology) are checked by modules/cluster-spec and policies/conftest.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["cluster", "cluster_id", "distribution", "kubernetes_version", "topology", "pools"],
+  "properties": {
+    "cluster": {
+      "description": "Unique cluster name.",
+      "$ref": "#/$defs/name"
+    },
+    "cluster_id": {
+      "description": "Defines Pod 10.{10N}.0.0/16 and Service 10.{10N+1}.0.0/16 CIDR.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 24
+    },
+    "distribution": {
+      "enum": ["talos", "kubeadm", "k3s"]
+    },
+    "kubernetes_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "topology": {
+      "enum": ["single", "ha"]
+    },
+    "profiles": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": ["core", "ci", "data", "security-plus", "observability-plus", "chaos", "ru-track"]
+      },
+      "default": ["core"]
+    },
+    "mechanism": {
+      "description": "Defaults to the default mechanism of the control-plane provider.",
+      "enum": ["capi", "opentofu"]
+    },
+    "allow_experimental": {
+      "type": "boolean",
+      "default": false
+    },
+    "control_plane_multisite": {
+      "description": "Allows control-plane pools on different sites; requires a reason.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "reason": { "type": "string" }
+      },
+      "if": {
+        "properties": { "enabled": { "const": true } }
+      },
+      "then": {
+        "required": ["reason"],
+        "properties": { "reason": { "minLength": 1, "pattern": "\\S" } }
+      }
+    },
+    "pools": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/name" },
+      "additionalProperties": { "$ref": "#/$defs/pool" }
+    }
+  },
+  "$defs": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,30}[a-z0-9]$"
+    },
+    "pool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "os", "provider", "site", "size"],
+      "properties": {
+        "role": { "enum": ["control-plane", "worker"] },
+        "os": { "enum": ["ubuntu-2404", "ubuntu-2604", "astra-18", "alpine", "talos"] },
+        "provider": { "enum": ["proxmox", "selectel", "vkcloud", "yandex", "timeweb", "byo"] },
+        "site": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
+        },
+        "size": { "enum": ["xs", "s", "m", "l", "xl", "2xl"] },
+        "count": { "type": "integer", "minimum": 0 },
+        "autoscale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min", "max"],
+          "properties": {
+            "min": { "type": "integer", "minimum": 0 },
+            "max": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "taints": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "custom_image_supported": {
+          "description": "Required for os talos on provider byo.",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "oneOf": [
+        { "required": ["count"], "not": { "required": ["autoscale"] } },
+        { "required": ["autoscale"], "not": { "required": ["count"] } }
+      ]
+    }
+  }
+}

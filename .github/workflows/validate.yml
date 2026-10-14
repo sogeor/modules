@@ -51,6 +51,48 @@ jobs:
       - name: zizmor
         run: zizmor --offline --min-severity low .github/workflows
 
+  opentofu:
+    name: opentofu
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install tools
+        run: |
+          tools/install-tools.sh "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >>"$GITHUB_PATH"
+
+      - name: fmt, validate, tflint, test, terraform-docs
+        run: tools/check-modules.sh
+
+  policies:
+    name: policies
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install tools
+        run: |
+          python3 -m pip install --user --quiet --require-hashes -r .github/requirements-lint.txt
+          tools/install-tools.sh "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >>"$GITHUB_PATH"
+
+      - name: JSON Schema
+        run: tools/check-schema.sh
+
+      - name: conftest fmt
+        run: conftest fmt --check policies/conftest
+
+      - name: conftest verify
+        run: conftest verify --policy policies/conftest/cluster --data modules/cluster-spec/matrix.yaml
+
+      - name: conftest test clusters
+        run: conftest test --policy policies/conftest/cluster --data modules/cluster-spec/matrix.yaml clusters/
+
   security:
     name: security
     uses: sogeor/workflows/.github/workflows/security-lite.yml@7d7cabb75c9c2116cb2a669d65f23609f1504660 # v0.1.1
