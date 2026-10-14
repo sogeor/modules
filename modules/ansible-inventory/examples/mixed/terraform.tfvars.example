@@ -1,0 +1,27 @@
+proxmox = {
+  node_name    = "pve"
+  datastore_id = "local-lvm"
+  bridge       = "vmbr0"
+}
+
+network = {
+  prefix_length = 24
+  gateway       = "203.0.113.1"
+  dns_servers   = ["203.0.113.1"]
+  domain        = "lab.example.com"
+}
+
+addresses = {
+  cp = ["203.0.113.40"]
+}
+
+ssh = {
+  user        = "ops"
+  public_keys = ["CHANGE_ME"]
+}
+
+hosts = {
+  vds = [{ public_ip = "198.51.100.10" }]
+}
+
+mesh_addresses = {}

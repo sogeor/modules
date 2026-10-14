@@ -5,7 +5,7 @@ A cluster is described once in YAML; the modules validate the description, creat
 and produce either a Talos cluster, an Ansible inventory or Cluster API manifests from it.
 
 !!! note "Status"
-    The cluster description (schema, `cluster-spec`, reference clusters, policies), `providers/proxmox` and `talos-cluster` are ready; the other modules
+    The cluster description (schema, `cluster-spec`, reference clusters, policies), `providers/proxmox`, `talos-cluster`, `providers/byo` and `ansible-inventory` are ready; the other modules
     are added one per release in the order of the [module catalog](#module-catalog).
 
 ## Who this is for
@@ -22,8 +22,8 @@ and produce either a Talos cluster, an Ansible inventory or Cluster API manifest
 | `modules/cluster-spec` | Reads and validates a description, compatibility matrix, derived values (CIDR, sizes) | ready (unreleased) |
 | `modules/providers/proxmox` | Nodes on Proxmox VE from tagged templates or Talos images | ready (unreleased) |
 | `modules/talos-cluster` | Talos Linux cluster through `siderolabs/talos`, Cilium at bootstrap | ready (unreleased) |
-| `modules/providers/byo` | Registration of existing servers | planned |
-| `modules/ansible-inventory` | Ansible inventory from node contracts | planned |
+| `modules/providers/byo` | Registration of existing servers | ready (unreleased) |
+| `modules/ansible-inventory` | Ansible inventory from node contracts | ready (unreleased) |
 | `modules/capi-cluster` | Cluster API manifests from a description | planned |
 | `modules/providers/selectel` | Selectel networks and projects for cloud clusters | planned |
 | `modules/mesh-registration` | Headscale pre-auth keys | planned |

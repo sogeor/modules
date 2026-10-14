@@ -125,6 +125,36 @@ tofu output -raw kubeconfig > kubeconfig && kubectl --kubeconfig kubeconfig get 
 Expected: `talosctl health` passes every check; every node is `Ready`. Delete the local `talosconfig` and
 `kubeconfig` files after copying them to OpenBao.
 
+## Register BYO servers and build the Ansible inventory
+
+Goal: existing servers (and VMs from other providers) listed in an Ansible inventory with the platform groups.
+
+Preconditions: the servers accept SSH with a key for the first user; the cluster description has pools with
+`provider: byo` and matching `count`.
+
+1. List the servers per pool in `providers/byo` (`hosts`), merge the nodes of all providers into
+   `ansible-inventory` (see `modules/ansible-inventory/examples/mixed`).
+2. Apply in the consuming repository.
+3. Create the inventory plugin file from [Configuration](configuration.md#inventory-plugin-file) and check:
+
+    ```bash
+    ansible-galaxy collection install cloud.terraform
+    ansible-inventory -i inventory.terraform.yml --graph
+    ```
+
+Expected: groups `cluster_<name>`, `role_*`, `site_*`, `os_*`, `mesh`, `internet` with the hosts; Talos nodes are
+absent. `tofu output` of `bootstrap_hosts` lists servers still reached by their public address.
+
+## Move a server behind the mesh
+
+Goal: Ansible reaches a server outside `home` through the mesh, so the `internet` hardening can close public SSH.
+
+1. Join the server to the mesh (role `tailscale` in the `ansible` repository) and note its mesh address.
+2. Add it to `mesh_addresses` (`{ <node name> = "<mesh address>" }`) and apply.
+
+Check: the server is no longer in `bootstrap_hosts`; `ansible -i inventory.terraform.yml <node name> -m ping`
+succeeds through the mesh. Only then apply the hardening that closes public SSH.
+
 ## Mark an image as available
 
 When [images](https://github.com/sogeor/images) builds a new (OS, provider) image, change its status in

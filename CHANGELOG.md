@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `modules/providers/byo`: existing servers as nodes of BYO pools in the normalized node contract, with checks of
+  the host count, addresses and SSH users.
+- `modules/ansible-inventory` (`ansible/ansible` 1.5.0): inventory from nodes of any providers with the platform
+  groups; `ansible_host` by private, mesh or public address; `bootstrap_hosts` lists servers not yet in the mesh;
+  end-to-end test with Proxmox and BYO nodes.
 - `modules/talos-cluster` (`siderolabs/talos` 0.12.0, `hashicorp/helm` 3.3.0): Talos 1.14 cluster from normalized
   nodes with `talos_machine` and `talos_cluster` (Talos and Kubernetes upgrades from code), configuration
   documents built by a provider-free submodule, Cilium 1.20.2 as a bootstrap inline manifest (no kube-proxy,
