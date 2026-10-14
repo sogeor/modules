@@ -61,6 +61,30 @@ Symptom → cause → fix. Entries are added from real failures.
 - **Cause:** `talos.iso_sha256` belongs to another schematic or version.
 - **Fix:** recompute it with the command in [Configuration](configuration.md#providersproxmox) for the exact schematic and version.
 
+## talos-cluster: `… is incompatible with v1alpha1 config` or `already set in v1alpha1 config`
+
+- **Cause:** a patch uses the old v1alpha1 fields (`machine.install`, `cluster.network`, `cluster.proxy`) while the
+  config contract `v1.14` generates the new documents.
+- **Fix:** patch the document that replaced the field (`UnattendedInstallConfig`, `KubeNetworkConfig`,
+  `KubeProxyConfig`, …); `tools/check-talos.sh` reproduces the error offline.
+
+## talos-cluster: `the following document kinds are only allowed on control plane machines`
+
+- **Cause:** a control-plane-only document (`KubeProxyConfig`, inline manifests, VIP) reached a worker patch.
+- **Fix:** keep such documents in the control-plane list of `modules/talos-cluster/config`.
+
+## talos-cluster: apply waits on `talos_machine` and times out
+
+- **Cause:** the node is not reachable on port 50000, or it booted from the disk before Talos was installed.
+- **Fix:** check that the VM shows the Talos maintenance screen with the expected address in the Proxmox
+  console, and that the machine running OpenTofu reaches `<address>:50000`.
+
+## talos-cluster: nodes stay `NotReady`
+
+- **Cause:** Cilium did not start (chart values, image pull) — without a CNI nodes are never ready.
+- **Fix:** `kubectl -n kube-system get pods -l k8s-app=cilium` and the pod logs; `talosctl get manifests` lists
+  the inline manifests Talos applied.
+
 ## Renovate does not update a Python lock file
 
 - **Cause:** the pip-compile header is missing or contains `--no-index`.

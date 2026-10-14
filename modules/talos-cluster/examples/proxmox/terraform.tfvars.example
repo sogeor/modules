@@ -1,0 +1,23 @@
+proxmox = {
+  node_name    = "pve"
+  datastore_id = "local-lvm"
+  bridge       = "vmbr0"
+}
+
+network = {
+  prefix_length = 24
+  gateway       = "203.0.113.1"
+  dns_servers   = ["203.0.113.1"]
+  domain        = "lab.example.com"
+}
+
+addresses = {
+  cp = ["203.0.113.31"]
+}
+
+talos = {
+  version         = "v1.14.2"
+  schematic_id    = "CHANGE_ME"
+  iso_sha256      = "CHANGE_ME"
+  config_contract = "v1.14"
+}

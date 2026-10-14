@@ -60,6 +60,36 @@ Goal: rebuild one node from the newest template; nodes are replaced on purpose, 
 For Talos, change `talos.version` first (a new ISO is downloaded next to the old one); upgrade running nodes with
 `talosctl upgrade` instead of replacing them.
 
+## Upgrade Talos
+
+Goal: a newer Talos version on every node without recreating VMs.
+
+1. Change `talos.version` passed to `talos-cluster` (keep `talos.config_contract` unchanged). If the schematic
+   changes, change `talos.schematic_id` too.
+2. For `ha`, apply with `-parallelism=1` so nodes upgrade one at a time and etcd keeps quorum.
+3. Apply. Each `talos_machine` upgrades its node to the new installer image and reboots it (drained first in `ha`).
+
+Check: `talosctl version` reports the new version on every node; `talosctl health` passes.
+
+In `single`, the cluster is unavailable while the only node reboots.
+
+## Upgrade Kubernetes
+
+1. Change `kubernetes_version` in the cluster description.
+2. Apply. `talos_cluster` runs the Talos `upgrade-k8s` procedure: control-plane components one by one, then
+   kubelet on each node, with health checks between steps.
+
+Check: `kubectl get nodes` shows the new version on every node.
+
+## Store and rotate Talos secrets
+
+- After the first apply, copy `machine_secrets`, `talosconfig` and `kubeconfig` (break-glass) to OpenBao;
+  delete local copies.
+- `machine_secrets` is needed to add nodes or rebuild the cluster from the description; losing both the state
+  and the OpenBao copy means rebuilding the cluster with new secrets.
+- The kubeconfig client certificate is renewed by `talos_cluster_kubeconfig` before it expires; copy the new one
+  to OpenBao after an apply that changed it.
+
 ## Roll back a release
 
 Consumers pin tags, so a faulty release is fixed by a new patch release. Do not move or delete

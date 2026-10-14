@@ -1,0 +1,15 @@
+cluster: mgmt
+cluster_id: 1
+distribution: talos
+kubernetes_version: "1.37.1"
+topology: single
+profiles: [core, ci]
+mechanism: opentofu
+pools:
+  cp:
+    role: control-plane
+    os: talos
+    provider: proxmox
+    site: home
+    size: xl
+    count: 1

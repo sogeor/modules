@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `modules/talos-cluster` (`siderolabs/talos` 0.12.0, `hashicorp/helm` 3.3.0): Talos 1.14 cluster from normalized
+  nodes with `talos_machine` and `talos_cluster` (Talos and Kubernetes upgrades from code), configuration
+  documents built by a provider-free submodule, Cilium 1.20.2 as a bootstrap inline manifest (no kube-proxy,
+  no Flannel), KubeSpan, VIP for `ha`, LUKS2 disk encryption with a TPM key; ADR 0005.
+- `tools/check-talos.sh` and CI step: renders the Talos patches offline and validates them with `talosctl`.
+- `providers/proxmox`: TPM 2.0 for Talos VMs (`proxmox.tpm`, default on).
 - `modules/providers/proxmox` (`bpg/proxmox` 0.116.0): VMs for Proxmox pools of OpenTofu clusters; Ubuntu as
   full clones of the newest tagged template, Talos from the Image Factory ISO with SHA-256 check; static
   addresses through cloud-init; output `nodes` in the normalized node contract; ADR 0004.

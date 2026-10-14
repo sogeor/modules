@@ -10,6 +10,8 @@ readonly CONFTEST_VERSION="0.71.1"
 readonly CONFTEST_SHA256="c3f6b2a753bd56e377a1e51a95ae3e057f926f2e9139f7d5b5dfbbaf810f7985"
 readonly TFDOCS_VERSION="0.24.0"
 readonly TFDOCS_SHA256="9005daf969de0b50134493a2c00078b49f5f5b39d021cda7c89bf4d4f3d776d3"
+readonly TALOSCTL_VERSION="1.14.2"
+readonly TALOSCTL_SHA256="c6c9552b0e5f767352c595fa1c0af4f186f697488646872955057d23990a66c4"
 
 fetch() {
   local url="$1" sha="$2" out="$3"
@@ -39,7 +41,10 @@ main() {
     "${TFDOCS_SHA256}" "${tmp}/tfdocs.tgz"
   tar -xzf "${tmp}/tfdocs.tgz" -C "${dest}" terraform-docs
 
-  chmod +x "${dest}"/{tofu,tflint,conftest,terraform-docs}
+  fetch "https://github.com/siderolabs/talos/releases/download/v${TALOSCTL_VERSION}/talosctl-linux-amd64" \
+    "${TALOSCTL_SHA256}" "${dest}/talosctl"
+
+  chmod +x "${dest}"/{tofu,tflint,conftest,terraform-docs,talosctl}
 }
 
 main "$@"

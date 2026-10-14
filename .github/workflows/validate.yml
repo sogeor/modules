@@ -67,6 +67,9 @@ jobs:
       - name: fmt, validate, tflint, test, terraform-docs
         run: tools/check-modules.sh
 
+      - name: Talos configuration (talosctl validate)
+        run: tools/check-talos.sh
+
   policies:
     name: policies
     runs-on: ubuntu-24.04

@@ -48,6 +48,14 @@ resource "proxmox_virtual_environment_vm" "node" {
     type         = "4m"
   }
 
+  dynamic "tpm_state" {
+    for_each = each.value.talos && var.proxmox.tpm ? [1] : []
+    content {
+      datastore_id = var.proxmox.datastore_id
+      version      = "v2.0"
+    }
+  }
+
   disk {
     datastore_id = var.proxmox.datastore_id
     interface    = "scsi0"
