@@ -23,7 +23,7 @@ variable "spec" {
 }
 
 variable "proxmox" {
-  description = "Proxmox VE placement: node, datastores and bridge."
+  description = "Proxmox VE placement: node, datastores, bridge, CPU type and a TPM 2.0 for Talos VMs (disk encryption)."
   type = object({
     node_name               = string
     datastore_id            = string
@@ -32,6 +32,7 @@ variable "proxmox" {
     bridge                  = string
     vlan_id                 = optional(number)
     cpu_type                = optional(string, "host")
+    tpm                     = optional(bool, true)
   })
 
   validation {

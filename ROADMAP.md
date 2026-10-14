@@ -8,7 +8,8 @@ Horizon: through Q4 2027. Order follows the sogeor platform plan.
   reference descriptions `mgmt`, `main` and `talos`.
 - `providers/proxmox`: nodes from tagged templates of [images](https://github.com/sogeor/images) and Talos
   Image Factory images.
-- `talos-cluster`: Talos Linux cluster through `siderolabs/talos`, topologies `single` and `ha`.
+- SecureBoot for Talos VMs on Proxmox VE (Image Factory SecureBoot ISO, key enrollment), so TPM disk encryption
+  reaches full strength.
 - `providers/byo`: registration of existing servers; `ansible-inventory` for Ansible roles.
 - `capi-cluster`: Cluster API manifests (Cluster, control plane, MachineDeployment, MachineHealthCheck,
   Cluster Autoscaler bounds) for Talos and kubeadm on Proxmox VE and OpenStack.

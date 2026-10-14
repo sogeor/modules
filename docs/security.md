@@ -11,6 +11,11 @@
 | Tests never touch infrastructure | `tofu test` with mock providers; CI has no infrastructure credentials |
 | Static analysis | Checkov, Trivy, Semgrep and gitleaks through `security-lite` |
 | Sensitive outputs | Machine secrets, talosconfig and kubeconfig are `sensitive = true` |
+| Verified images | Talos ISO checked by SHA-256 before use; templates selected only by tags and CI build names |
+| Encrypted Talos disks | STATE and EPHEMERAL volumes use LUKS2 with a TPM-sealed key by default (`talos-cluster`) |
+| Kubernetes secrets encrypted in etcd | Talos default (secretbox key in the machine secrets) |
+| No kube-proxy, policy-capable CNI from the first boot | Cilium with kube-proxy replacement installed at bootstrap |
+| Least exposure of the Talos API | Talos has no SSH; access only with the client certificate from `talosconfig` |
 
 ## What is not guaranteed
 
@@ -18,6 +23,11 @@
   modules of consuming repositories.
 - Correctness of upstream providers and Cluster API providers.
 - Network isolation of created nodes beyond what the module inputs request.
+- Full strength of TPM disk encryption: without SecureBoot the key is bound to PCR 7 in the
+  "SecureBoot disabled" state, so it protects a disk copied away from its VM, but not against someone who can
+  boot a modified system on the same VM. SecureBoot for Talos VMs is planned ([ROADMAP](https://github.com/sogeor/modules/blob/master/ROADMAP.md)).
+- On Proxmox the vTPM state lives on the same storage as the disks; copying the whole VM copies the key too.
+- The Cilium chart is pinned by version; its archive is not verified by digest by the Helm provider.
 
 ## Assurance case
 

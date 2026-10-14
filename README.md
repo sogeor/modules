@@ -10,7 +10,7 @@ OpenTofu modules and generators of the sogeor cluster constructor.
 > **Status:** the cluster description is ready: [schema](schemas/cluster.schema.json),
 > [`cluster-spec`](modules/cluster-spec/README.md), [reference clusters](clusters/) and
 > [policies](policies/conftest/cluster/cluster.rego); Proxmox VE nodes:
-> [`providers/proxmox`](modules/providers/proxmox/README.md). Other modules follow, see [ROADMAP.md](ROADMAP.md).
+> [`providers/proxmox`](modules/providers/proxmox/README.md); Talos clusters: [`talos-cluster`](modules/talos-cluster/README.md). Other modules follow, see [ROADMAP.md](ROADMAP.md).
 
 ## Overview
 
@@ -72,7 +72,7 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 
 | Distribution | OS | Proxmox VE | Selectel (OpenStack) | BYO | Status |
 |---|---|---|---|---|---|
-| Talos | talos | nodes: ready (OpenTofu); cluster: planned; CAPI: planned | planned (CAPI) | planned | in progress |
+| Talos | talos | ready (OpenTofu); CAPI: planned | planned (CAPI) | planned | in progress |
 | kubeadm | ubuntu-2404, ubuntu-2604 | nodes: ready (OpenTofu, ubuntu-2404); CAPI: planned | planned (CAPI) | planned | in progress |
 | kubeadm | astra-18 | planned (CAPI) | — | planned | planned |
 | k3s | ubuntu, astra-18, alpine | — | — | — | later |
@@ -81,8 +81,12 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 
 | Component | Version |
 |---|---|
-| OpenTofu | 1.13.1 (modules require ≥ 1.10.0) |
+| OpenTofu | 1.13.1 (modules require ≥ 1.10.0; `talos-cluster` ≥ 1.11.0) |
 | `bpg/proxmox` | 0.116.0 |
+| `siderolabs/talos` | 0.12.0 |
+| `hashicorp/helm` | 3.3.0 |
+| Talos Linux (talosctl, config contract) | 1.14.2, `v1.14` |
+| Cilium (Helm chart) | 1.20.2 |
 | tflint | 0.64.0 |
 | Conftest | 0.71.1 |
 | terraform-docs | 0.24.0 |

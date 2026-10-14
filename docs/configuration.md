@@ -153,6 +153,7 @@ clusters it returns no nodes.
 | `proxmox.bridge` | string | — | yes | Network bridge | `vmbr0` |
 | `proxmox.vlan_id` | number 1–4094 | none | no | VLAN tag | `30` |
 | `proxmox.cpu_type` | string | `host` | no | QEMU CPU type | `x86-64-v2-AES` |
+| `proxmox.tpm` | bool | `true` | no | Add a TPM 2.0 to Talos VMs (needed for `disk_encryption = "tpm"` in `talos-cluster`) | `true` |
 | `network.prefix_length` | number 8–30 | — | yes | Prefix length of node addresses | `24` |
 | `network.gateway` | IPv4 | — | yes | Default gateway | `203.0.113.1` |
 | `network.dns_servers` | list of IPv4 | — | yes | DNS servers | `["203.0.113.1"]` |
@@ -202,6 +203,62 @@ needs, on `/` or narrower paths: `VM.Allocate`, `VM.Clone`, `VM.Audit`, `VM.Conf
 `Datastore.AllocateTemplate`, `Datastore.Audit`, `Sys.Audit`, `Sys.AccessNetwork` (ISO download by URL),
 `SDN.Use`. A token created with `--privsep 1` needs its own ACL entry.
 
+## talos-cluster
+
+Source: `modules/talos-cluster`. Generated reference: `modules/talos-cluster/README.md`.
+Providers: `siderolabs/talos` 0.12.0 and `hashicorp/helm` 3.3.0 (only renders the Cilium chart, never connects
+to a cluster), both configured by the caller with empty blocks. Requires OpenTofu 1.11 or newer (ephemeral
+resources and write-only arguments).
+
+### Inputs
+
+| Name | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `spec` | object | — | yes | `module.<name>.spec` of `cluster-spec`; distribution must be `talos` | `module.spec.spec` |
+| `nodes` | map(node) | — | yes | Nodes in the normalized node contract, all `distribution = talos`, at least one control plane | `module.nodes.nodes` |
+| `talos.version` | string | — | yes | Talos version to install and keep on the nodes | `v1.14.2` |
+| `talos.schematic_id` | 64 hex | — | yes | Image Factory schematic of the installer | `CHANGE_ME` |
+| `talos.config_contract` | string | — | yes | Configuration contract fixed at creation; do not change on upgrades | `v1.14` |
+| `vip.address`, `vip.link` | IPv4, string | `null` | for `ha` | Shared API address and the link it is announced on (`talosctl get links`) | `{ address = "203.0.113.30", link = "eth0" }` |
+| `install_disk` | device path | `/dev/sda` | no | System disk | `/dev/vda` |
+| `disk_encryption` | `tpm` \| `nodeid` \| `none` | `tpm` | no | Key of the STATE and EPHEMERAL volumes | `tpm` |
+| `cilium.version` | string | `1.20.2` | no | Cilium chart version | `1.20.2` |
+| `cilium.repository` | URL | `https://helm.cilium.io` | no | Chart repository or mirror | `https://helm.cilium.io` |
+| `cilium.values` | object | `{}` | no | Values merged over the defaults below | `{ hubble = { enabled = false } }` |
+| `image_factory_host` | host | `factory.talos.dev` | no | Image Factory serving the installer | `factory.example.com` |
+
+### Outputs
+
+| Name | Sensitive | Description |
+|---|---|---|
+| `endpoint` | no | `https://<vip or control-plane address>:6443` |
+| `installer_image` | no | `<factory>/nocloud-installer/<schematic>:<version>` |
+| `config_patches` | no | Patches per node key, one YAML document per element |
+| `talosconfig` | yes | talosctl configuration with all control-plane endpoints |
+| `kubeconfig` | yes | Admin kubeconfig (break-glass) |
+| `machine_secrets` | yes | Talos machine secrets |
+| `client_configuration` | yes | Talos client certificates |
+
+Store `talosconfig`, `kubeconfig` and `machine_secrets` in OpenBao; the state that holds them must be encrypted.
+
+### What the nodes get
+
+| Document | All nodes | Control plane only |
+|---|---|---|
+| `UnattendedInstallConfig` | installer image, disk `install_disk` | |
+| `KubeNetworkConfig` | Pod and Service CIDR from `cluster-spec` | |
+| `KubeSpanConfig` | enabled | |
+| `VolumeConfig` STATE, EPHEMERAL | LUKS2 with the `disk_encryption` key (EPHEMERAL locked to STATE) | |
+| `KubeNodeConfig` | pool labels and taints (`key=value:Effect`) | in `single`, the control-plane taint is removed |
+| `KubeProxyConfig` | | disabled (Cilium replaces kube-proxy) |
+| `KubeFlannelCNIConfig` | | removed |
+| `KubeInlineManifestConfig` `cilium` | | rendered chart |
+| `Layer2VIPConfig` | | in `ha`, `vip.address` on `vip.link` |
+
+Cilium defaults: `kubeProxyReplacement: true`, API through KubePrism (`localhost:7445`), `ipam.mode: kubernetes`,
+`cluster.name` and `cluster.id` from the description (ClusterMesh-ready), cgroup and capabilities for Talos,
+`operator.replicas` 1 in `single` and 2 in `ha`.
+
 ## CI
 
 | Workflow | Trigger | Inputs | Secrets |
@@ -210,7 +267,7 @@ needs, on `/` or narrower paths: `VM.Allocate`, `VM.Clone`, `VM.Audit`, `VM.Conf
 | `docs` | pull request, push to `master`, manual | — | — |
 | `scorecard` | weekly, push to `master`, ruleset change | — | `SCORECARD_TOKEN` (repository secret, fine-grained PAT, Administration: read-only) |
 
-Jobs of `validate`: `linters`, `opentofu` (`tools/check-modules.sh`), `policies` (schema and Conftest),
+Jobs of `validate`: `linters`, `opentofu` (`tools/check-modules.sh`, `tools/check-talos.sh`), `policies` (schema and Conftest),
 `security / *` (reusable `security-lite`).
 
 Tool versions and SHA-256 checksums:
@@ -222,6 +279,7 @@ Tool versions and SHA-256 checksums:
 | `tools/install-tools.sh` | `TFLINT_VERSION`, `TFLINT_SHA256` | tflint, `linux_amd64.zip` |
 | `tools/install-tools.sh` | `CONFTEST_VERSION`, `CONFTEST_SHA256` | Conftest, `Linux_x86_64.tar.gz` |
 | `tools/install-tools.sh` | `TFDOCS_VERSION`, `TFDOCS_SHA256` | terraform-docs, `linux-amd64.tar.gz` |
+| `tools/install-tools.sh` | `TALOSCTL_VERSION`, `TALOSCTL_SHA256` | talosctl, `talosctl-linux-amd64` |
 
 Update a version and its checksum together; the checksum comes from the release checksum file.
 

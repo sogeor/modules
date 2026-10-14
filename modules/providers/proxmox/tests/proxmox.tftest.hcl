@@ -109,6 +109,11 @@ run "talos_nodes" {
     condition     = proxmox_virtual_environment_vm.node["cp-1"].initialization[0].ip_config[0].ipv4[0].address == "203.0.113.31/24"
     error_message = "The address must carry the prefix length."
   }
+
+  assert {
+    condition     = proxmox_virtual_environment_vm.node["cp-1"].tpm_state[0].version == "v2.0"
+    error_message = "Talos VMs need a TPM 2.0 for disk encryption."
+  }
 }
 
 run "missing_address" {
@@ -206,6 +211,11 @@ run "kubeadm_nodes" {
   assert {
     condition     = length(proxmox_download_file.talos_iso) == 0 && output.talos_iso == null
     error_message = "No ISO is downloaded without Talos pools."
+  }
+
+  assert {
+    condition     = alltrue([for k, vm in proxmox_virtual_environment_vm.node : length(vm.tpm_state) == 0])
+    error_message = "Ubuntu VMs get no TPM."
   }
 }
 

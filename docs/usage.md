@@ -99,6 +99,32 @@ applies the configuration.
 
 Check: in the Proxmox web UI the VMs carry the tags `sogeor`, the cluster and the pool name.
 
+## Create a Talos cluster on Proxmox VE
+
+Goal: a working Talos cluster (for example `mgmt`) from one description.
+
+Preconditions: everything from [Create nodes on Proxmox VE](#create-nodes-on-proxmox-ve); OpenTofu 1.11+;
+network access from the machine running OpenTofu to the node addresses (port 50000 for the Talos API, 6443 for
+Kubernetes) and to `helm.cilium.io`.
+
+1. Copy `modules/talos-cluster/examples/proxmox` into the consuming repository, set `cluster.yaml` and
+   `terraform.tfvars` (from `terraform.tfvars.example`).
+2. Plan and apply in the consuming repository.
+
+Expected: VMs boot the Talos ISO, receive the configuration, install Talos on the disk and reboot; etcd is
+bootstrapped; nodes become `Ready` once Cilium starts. Takes about 5–10 minutes for one node.
+
+Check:
+
+```bash
+tofu output -raw talosconfig > talosconfig && export TALOSCONFIG=$PWD/talosconfig
+talosctl health
+tofu output -raw kubeconfig > kubeconfig && kubectl --kubeconfig kubeconfig get nodes -o wide
+```
+
+Expected: `talosctl health` passes every check; every node is `Ready`. Delete the local `talosconfig` and
+`kubeconfig` files after copying them to OpenBao.
+
 ## Mark an image as available
 
 When [images](https://github.com/sogeor/images) builds a new (OS, provider) image, change its status in
