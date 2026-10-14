@@ -85,6 +85,18 @@ Symptom → cause → fix. Entries are added from real failures.
 - **Fix:** `kubectl -n kube-system get pods -l k8s-app=cilium` and the pod logs; `talosctl get manifests` lists
   the inline manifests Talos applied.
 
+## Ansible inventory is empty
+
+- **Cause:** the `cloud.terraform.terraform_provider` plugin reads only the root module unless
+  `search_child_modules: true` is set; or the root module is not initialized.
+- **Fix:** use the plugin file from [Configuration](configuration.md#inventory-plugin-file) and run `tofu init` in
+  `project_path`.
+
+## providers/byo: `The number of hosts must equal the pool count`
+
+- **Cause:** the `hosts` list of a pool and its `count` in the cluster description differ.
+- **Fix:** add or remove hosts, or change `count`, so both match.
+
 ## Renovate does not update a Python lock file
 
 - **Cause:** the pip-compile header is missing or contains `--no-index`.

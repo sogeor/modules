@@ -259,6 +259,79 @@ Cilium defaults: `kubeProxyReplacement: true`, API through KubePrism (`localhost
 `cluster.name` and `cluster.id` from the description (ClusterMesh-ready), cgroup and capabilities for Talos,
 `operator.replicas` 1 in `single` and 2 in `ha`.
 
+## providers/byo
+
+Source: `modules/providers/byo`. Generated reference: `modules/providers/byo/README.md`. No provider; creates no
+resources. Acts on pools with `provider: byo`.
+
+### Inputs
+
+| Name | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `spec` | object | — | yes | `module.<name>.spec` of `cluster-spec` | `module.spec.spec` |
+| `hosts.<pool>[].public_ip` | IPv4 | `null` | one of the two | Public address | `198.51.100.10` |
+| `hosts.<pool>[].private_ip` | IPv4 | `public_ip` | one of the two | Private address, if the provider has a private network | `10.0.0.10` |
+| `hosts.<pool>[].ssh_user` | string | `ssh_user` | no | SSH user of the first connection for this host | `ubuntu` |
+| `hosts.<pool>[].zone` | string | the site | no | Value of `topology.kubernetes.io/zone` | `ams-1` |
+| `ssh_user` | string | `null` | for non-Talos pools without per-host users | Default SSH user | `ops` |
+| `domain` | DNS name | — | yes | Domain for FQDNs | `lab.example.com` |
+
+The number of hosts of a pool must equal its `count`; hosts of pools that are not BYO pools are rejected.
+
+### Outputs
+
+| Name | Description |
+|---|---|
+| `nodes` | Map `<pool>-<index>` → normalized node ([Architecture](architecture.md#normalized-node)) |
+
+## ansible-inventory
+
+Source: `modules/ansible-inventory`. Generated reference: `modules/ansible-inventory/README.md`.
+Provider: `ansible/ansible` 1.5.0, configured by the caller with an empty block.
+
+### Inputs
+
+| Name | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `nodes` | map(node) | — | yes | Nodes of any providers, merged: `merge(module.a.nodes, module.b.nodes)`; names unique | `merge(module.home.nodes, module.vds.nodes)` |
+| `mesh_addresses` | map(IPv4) | `{}` | no | Mesh address per node name, once the node joined the mesh | `{ lab-vds-1 = "100.64.0.12" }` |
+| `cluster_vars` | map(object) | `{}` | no | Variables of the `cluster_<name>` group per cluster | `{ lab = { kubernetes_version = "1.37.1" } }` |
+
+### Outputs
+
+| Name | Description |
+|---|---|
+| `hosts` | Per host: `ansible_host`, `connection` (`private`, `mesh` or `public`), groups |
+| `groups` | Per group: host names |
+| `bootstrap_hosts` | Hosts outside `home` still reached by their public address |
+
+### Inventory contents
+
+| Item | Value |
+|---|---|
+| Hosts | Every node except Talos, named by the node name |
+| Groups | `cluster_<name>`, `distribution_<d>`, `role_<role>`, `site_<site>`, `os_<os>`; `mesh` when `mesh_required`; `internet` when the node has a public address; other characters become `_` |
+| `ansible_host` | `home`: private address; elsewhere: mesh address if known, otherwise public address, otherwise private address |
+| `ansible_user` | The node `ssh_user` |
+| Host variables | `sogeor_connection`, `sogeor_fqdn`, `sogeor_cluster`, `sogeor_pool`, `sogeor_role`, `sogeor_provider`, `sogeor_site`, `sogeor_os`, `sogeor_private_ip`, `sogeor_public_ip`, `sogeor_node_labels`, `sogeor_node_taints` |
+| Group `cluster_<name>` | `sogeor_cluster` plus `cluster_vars[<name>]` |
+
+### Inventory plugin file
+
+Ansible reads the inventory from the state of the consuming root module with the
+[`cloud.terraform`](https://github.com/ansible-collections/cloud.terraform) collection. The resources live in a
+child module, so `search_child_modules` must be `true`:
+
+```yaml
+plugin: cloud.terraform.terraform_provider
+project_path: path/to/root-module
+binary_path: /usr/local/bin/tofu
+search_child_modules: true
+```
+
+Save it as `inventory.terraform.yml` (the file name must end in `.yml`); the root module must be initialized
+with access to its state backend.
+
 ## CI
 
 | Workflow | Trigger | Inputs | Secrets |
