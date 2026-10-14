@@ -19,7 +19,10 @@ By contributing you agree that your contribution is licensed under [Apache-2.0](
 ## Tests
 
 - Every module has `examples/` and `tests/` run by `tofu test` with mock providers; no test touches real infrastructure.
-- Every validation rule of the cluster description has a passing and a failing case.
+- Every validation rule of the cluster description has a passing and a failing case in both
+  `modules/cluster-spec/tests/` and `policies/conftest/cluster/cluster_test.rego`, with the same rule id.
+- Values added to `modules/cluster-spec/matrix.yaml` are added to `schemas/cluster.schema.json` too
+  (`tools/check-schema.sh` enforces it).
 - Fixed defects get a test that would have caught them.
 
 ## Coding standards

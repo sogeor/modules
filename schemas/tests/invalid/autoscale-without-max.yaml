@@ -1,0 +1,20 @@
+cluster: lab
+cluster_id: 5
+distribution: kubeadm
+kubernetes_version: "1.37.1"
+topology: single
+pools:
+  cp:
+    role: control-plane
+    os: ubuntu-2404
+    provider: proxmox
+    site: home
+    size: m
+    count: 1
+  workers:
+    role: worker
+    os: ubuntu-2404
+    provider: proxmox
+    site: home
+    size: m
+    autoscale: { min: 0 }

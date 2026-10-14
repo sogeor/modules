@@ -5,8 +5,8 @@ A cluster is described once in YAML; the modules validate the description, creat
 and produce either a Talos cluster, an Ansible inventory or Cluster API manifests from it.
 
 !!! note "Status"
-    The repository contains the scaffold, CI and documentation. Modules are added one per release in the
-    order of the [module catalog](#module-catalog).
+    The cluster description (schema, `cluster-spec`, reference clusters, policies) is ready; the other modules
+    are added one per release in the order of the [module catalog](#module-catalog).
 
 ## Who this is for
 
@@ -18,8 +18,8 @@ and produce either a Talos cluster, an Ansible inventory or Cluster API manifest
 
 | Module | Purpose | Status |
 |---|---|---|
-| `schemas/cluster.schema.json` | JSON Schema of the cluster description | planned |
-| `modules/cluster-spec` | Reads and validates a description, compatibility matrix, derived values (CIDR, sizes) | planned |
+| `schemas/cluster.schema.json` | JSON Schema of the cluster description | ready (unreleased) |
+| `modules/cluster-spec` | Reads and validates a description, compatibility matrix, derived values (CIDR, sizes) | ready (unreleased) |
 | `modules/providers/proxmox` | Nodes on Proxmox VE from tagged templates or Talos images | planned |
 | `modules/talos-cluster` | Talos Linux cluster through `siderolabs/talos` | planned |
 | `modules/providers/byo` | Registration of existing servers | planned |
@@ -28,8 +28,8 @@ and produce either a Talos cluster, an Ansible inventory or Cluster API manifest
 | `modules/providers/selectel` | Selectel networks and projects for cloud clusters | planned |
 | `modules/mesh-registration` | Headscale pre-auth keys | planned |
 | `modules/dns-records`, `modules/cloudflare-apps` | DNS records and Cloudflare Tunnel hostnames | planned |
-| `clusters/*.yaml` | Reference descriptions `mgmt`, `main`, `talos` | planned |
-| `policies/conftest` | Policies for descriptions and plans | planned |
+| `clusters/*.yaml` | Reference descriptions `mgmt`, `main`, `talos` | ready (unreleased) |
+| `policies/conftest` | Policies for cluster descriptions (ready, unreleased); plan policies | planned |
 
 ## Place in the platform
 

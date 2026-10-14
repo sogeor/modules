@@ -1,0 +1,15 @@
+cluster: lab
+cluster_id: 5
+distribution: talos
+kubernetes_version: "1.37.1"
+topology: ha
+control_plane_multisite:
+  enabled: true
+pools:
+  cp:
+    role: control-plane
+    os: talos
+    provider: proxmox
+    site: home
+    size: m
+    count: 3

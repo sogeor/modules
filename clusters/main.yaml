@@ -1,0 +1,31 @@
+cluster: main
+cluster_id: 2
+distribution: kubeadm
+kubernetes_version: "1.37.1"
+topology: single
+profiles: [core, data]
+mechanism: capi
+pools:
+  cp:
+    role: control-plane
+    os: ubuntu-2404
+    provider: selectel
+    site: selectel-ru-9
+    size: m
+    count: 1
+  workers:
+    role: worker
+    os: ubuntu-2404
+    provider: selectel
+    site: selectel-ru-9
+    size: l
+    autoscale: { min: 0, max: 3 }
+  astra:
+    role: worker
+    os: astra-18
+    provider: proxmox
+    site: home
+    size: m
+    count: 1
+    labels:
+      sogeor.com/track: ru

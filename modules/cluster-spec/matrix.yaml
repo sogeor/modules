@@ -1,0 +1,69 @@
+matrix:
+  distributions:
+    talos:
+      os: [talos]
+    kubeadm:
+      os: [ubuntu-2404, ubuntu-2604, astra-18, alpine]
+    k3s:
+      os: [ubuntu-2404, ubuntu-2604, astra-18, alpine]
+
+  experimental_os: [alpine]
+
+  providers:
+    proxmox:
+      mechanisms: [opentofu, capi]
+      default_mechanism: capi
+    selectel:
+      mechanisms: [capi]
+      default_mechanism: capi
+    vkcloud:
+      mechanisms: [capi]
+      default_mechanism: capi
+    yandex:
+      mechanisms: [capi, opentofu]
+      default_mechanism: capi
+    timeweb:
+      mechanisms: [opentofu]
+      default_mechanism: opentofu
+    byo:
+      mechanisms: [opentofu]
+      default_mechanism: opentofu
+
+  images:
+    talos:
+      proxmox: available
+      selectel: available
+      vkcloud: available
+      yandex: available
+      timeweb: available
+      byo: available
+    ubuntu-2404:
+      proxmox: available
+      selectel: planned
+      vkcloud: planned
+      yandex: planned
+      byo: available
+    ubuntu-2604:
+      proxmox: planned
+      selectel: planned
+      vkcloud: planned
+      yandex: planned
+      byo: available
+    astra-18:
+      proxmox: planned
+      byo: available
+    alpine:
+      proxmox: planned
+      selectel: planned
+      vkcloud: planned
+      byo: available
+
+  sizes:
+    xs: { cpu: 1, memory_mb: 1024, disk_gb: 20 }
+    s: { cpu: 2, memory_mb: 2048, disk_gb: 30 }
+    m: { cpu: 2, memory_mb: 4096, disk_gb: 40 }
+    l: { cpu: 4, memory_mb: 8192, disk_gb: 80 }
+    xl: { cpu: 8, memory_mb: 16384, disk_gb: 160 }
+    2xl: { cpu: 8, memory_mb: 32768, disk_gb: 200 }
+
+  profiles: [core, ci, data, security-plus, observability-plus, chaos, ru-track]

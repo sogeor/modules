@@ -7,8 +7,9 @@ OpenTofu modules and generators of the sogeor cluster constructor.
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/sogeor/modules/badge)](https://scorecard.dev/viewer/?uri=github.com/sogeor/modules)
 [![License](https://img.shields.io/github/license/sogeor/modules)](LICENSE)
 
-> **Status:** the repository is being built. This version contains the scaffold, CI and documentation;
-> modules are added one per release, see [ROADMAP.md](ROADMAP.md).
+> **Status:** the cluster description is ready: [schema](schemas/cluster.schema.json),
+> [`cluster-spec`](modules/cluster-spec/README.md), [reference clusters](clusters/) and
+> [policies](policies/conftest/cluster/cluster.rego). Other modules follow, see [ROADMAP.md](ROADMAP.md).
 
 ## Overview
 
@@ -34,8 +35,9 @@ flowchart LR
 
 ```bash
 git clone https://github.com/sogeor/modules.git && cd modules
-pip install pre-commit && pre-commit install
-pre-commit run --all-files
+tools/install-tools.sh "$HOME/.local/bin"
+tools/check-modules.sh
+conftest test --policy policies/conftest/cluster --data modules/cluster-spec/matrix.yaml clusters/
 ```
 
 Modules are consumed by tag from root modules in other repositories:
@@ -78,6 +80,12 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 
 | Component | Version |
 |---|---|
+| OpenTofu | 1.13.1 (modules require ≥ 1.10.0) |
+| tflint | 0.64.0 |
+| Conftest | 0.71.1 |
+| terraform-docs | 0.24.0 |
+| check-jsonschema | 0.38.2 |
+| JSON Schema | draft 2020-12 |
 | sogeor/workflows (`security-lite`, `docs`, `scorecard`) | v0.1.1 |
 | actions/checkout | v7.0.1 |
 | actionlint | 1.7.12 |
@@ -86,6 +94,7 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 | gitleaks (pre-commit) | 8.30.1 |
 | markdownlint-cli2 (pre-commit) | 0.23.3 |
 | pre-commit-hooks | 6.0.0 |
+| shellcheck (pre-commit) | 0.11.0 |
 | mkdocs-material | 9.7.7 |
 
 Python tools are locked with hashes (`*.in` → `*.txt` by pip-compile): `.github/requirements-lint.txt`,
