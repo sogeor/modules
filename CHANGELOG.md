@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Removed
+
+- Alpine Linux from the base platform: the `alpine` OS, the `allow_experimental` field and the
+  `experimental-os` rule are gone from the cluster description, the schema, `cluster-spec` and the policies.
+
 ### Added
 
 - `modules/providers/byo`: existing servers as nodes of BYO pools in the normalized node contract, with checks of

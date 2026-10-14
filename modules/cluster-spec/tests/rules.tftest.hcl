@@ -109,42 +109,6 @@ run "image_planned_allowed" {
   }
 }
 
-run "experimental_os" {
-  command = plan
-
-  variables {
-    cluster = {
-      cluster = "bad", cluster_id = 5, distribution = "k3s", kubernetes_version = "1.37.1", topology = "single"
-      pools = {
-        cp = { role = "control-plane", os = "alpine", provider = "byo", site = "home", size = "s", count = 1 }
-      }
-    }
-  }
-
-  assert {
-    condition     = contains([for v in output.violations : v.rule], "experimental-os")
-    error_message = "alpine without allow_experimental must be rejected."
-  }
-}
-
-run "experimental_os_allowed" {
-  command = plan
-
-  variables {
-    cluster = {
-      cluster = "lab", cluster_id = 5, distribution = "k3s", kubernetes_version = "1.37.1", topology = "single", allow_experimental = true
-      pools = {
-        cp = { role = "control-plane", os = "alpine", provider = "byo", site = "home", size = "s", count = 1 }
-      }
-    }
-  }
-
-  assert {
-    condition     = length(output.violations) == 0
-    error_message = "alpine with allow_experimental on byo must be valid."
-  }
-}
-
 run "talos_byo_custom_image" {
   command = plan
 

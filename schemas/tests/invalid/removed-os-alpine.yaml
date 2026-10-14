@@ -1,0 +1,13 @@
+cluster: lab
+cluster_id: 5
+distribution: k3s
+kubernetes_version: "1.37.1"
+topology: single
+pools:
+  cp:
+    role: control-plane
+    os: alpine
+    provider: byo
+    site: vds
+    size: s
+    count: 1

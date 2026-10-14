@@ -18,11 +18,10 @@ compatibility is checked by [`cluster-spec`](#cluster-spec) and the [Conftest po
 | `topology` | `single` \| `ha` | — | yes | One control plane node or three | `single` |
 | `profiles` | list of strings | `[core]` | no | Component profiles installed by `platform` | `[core, data]` |
 | `mechanism` | `capi` \| `opentofu` | by control plane provider | no | How nodes are created | `capi` |
-| `allow_experimental` | bool | `false` | no | Allows experimental OS (Alpine) | `false` |
 | `control_plane_multisite.enabled` | bool | `false` | no | Allows control-plane pools on different sites | `true` |
 | `control_plane_multisite.reason` | string | — | when `enabled: true` | Why the sites qualify (measured latency below 10 ms) | `"Latency below 10 ms"` |
 | `pools.<name>.role` | `control-plane` \| `worker` | — | yes | Pool role | `worker` |
-| `pools.<name>.os` | `ubuntu-2404` \| `ubuntu-2604` \| `astra-18` \| `alpine` \| `talos` | — | yes | OS of the pool | `ubuntu-2404` |
+| `pools.<name>.os` | `ubuntu-2404` \| `ubuntu-2604` \| `astra-18` \| `talos` | — | yes | OS of the pool | `ubuntu-2404` |
 | `pools.<name>.provider` | `proxmox` \| `selectel` \| `byo` (others later) | — | yes | Where nodes run | `selectel` |
 | `pools.<name>.site` | string | — | yes | Site (`home`, `<cloud>-<region>`) | `selectel-ru-9` |
 | `pools.<name>.size` | `xs` \| `s` \| `m` \| `l` \| `xl` \| `2xl` | — | yes | Node size | `m` |
@@ -89,7 +88,6 @@ Every rule has the same id in `cluster-spec` and in Conftest.
 | `os-distribution` | The pool OS is not allowed for the distribution |
 | `image-unsupported` | No image exists or is planned for the (OS, provider) pair, for example `astra-18` on `selectel` |
 | `image-planned` | The image is only planned (a warning with `allow_planned_images`, always a warning in Conftest) |
-| `experimental-os` | An experimental OS without `allow_experimental: true` |
 | `talos-byo-custom-image` | `talos` on `byo` without `custom_image_supported: true` |
 | `count-or-autoscale` | A pool has both or neither of `count` and `autoscale` |
 | `autoscale-bounds` | Not `0 <= min <= max`, or `max < 1` |
@@ -111,7 +109,6 @@ against it in CI (`tools/check-schema.sh`).
 | `ubuntu-2404` | available | planned | planned | planned | — | available |
 | `ubuntu-2604` | planned | planned | planned | planned | — | available |
 | `astra-18` | planned | — | — | — | — | available |
-| `alpine` (experimental) | planned | planned | planned | — | — | available |
 
 | Provider | Mechanisms | Default |
 |---|---|---|

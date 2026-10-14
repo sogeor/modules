@@ -76,7 +76,7 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 | Talos | talos | ready (OpenTofu); CAPI: planned | planned (CAPI) | planned | in progress |
 | kubeadm | ubuntu-2404, ubuntu-2604 | nodes: ready (OpenTofu, ubuntu-2404); CAPI: planned | planned (CAPI) | planned | in progress |
 | kubeadm | astra-18 | planned (CAPI) | — | planned | planned |
-| k3s | ubuntu, astra-18, alpine | — | — | — | later |
+| k3s | ubuntu, astra-18 | — | — | — | later |
 
 ## Versions
 
