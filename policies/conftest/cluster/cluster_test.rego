@@ -92,10 +92,10 @@ test_ha_control_plane_count if {
 }
 
 multisite := {
-	"cluster": "lab", "cluster_id": 5, "distribution": "talos", "kubernetes_version": "1.37.1", "topology": "ha",
+	"cluster": "lab", "cluster_id": 5, "distribution": "kubeadm", "kubernetes_version": "1.37.1", "topology": "ha", "mechanism": "opentofu",
 	"pools": {
-		"home": {"role": "control-plane", "os": "talos", "provider": "proxmox", "site": "home", "size": "m", "count": 1},
-		"cloud": {"role": "control-plane", "os": "talos", "provider": "selectel", "site": "selectel-ru-9", "size": "m", "count": 2},
+		"home": {"role": "control-plane", "os": "ubuntu-2404", "provider": "proxmox", "site": "home", "size": "m", "count": 1},
+		"vds": {"role": "control-plane", "os": "ubuntu-2404", "provider": "byo", "site": "vds-1", "size": "m", "count": 2},
 	},
 }
 
@@ -103,4 +103,15 @@ test_control_plane_multisite if {
 	"control-plane-multisite" in rules(deny) with input as multisite
 	"control-plane-multisite" in rules(deny) with input as object.union(multisite, {"control_plane_multisite": {"enabled": true}})
 	count(deny) == 0 with input as object.union(multisite, {"control_plane_multisite": {"enabled": true, "reason": "Measured latency below 10 ms."}})
+}
+
+test_capi_single_provider if {
+	mixed := object.union(base, {"pools": {"workers": {"role": "worker", "os": "ubuntu-2404", "provider": "selectel", "site": "selectel-ru-9", "size": "m", "count": 1}}})
+	"capi-single-provider" in rules(deny) with input as mixed
+	not "capi-single-provider" in rules(deny) with input as object.union(mixed, {"mechanism": "opentofu"})
+}
+
+test_capi_distribution if {
+	"capi-distribution" in rules(deny) with input as object.union(base, {"distribution": "k3s"})
+	not "capi-distribution" in rules(deny) with input as object.union(base, {"distribution": "k3s", "mechanism": "opentofu"})
 }

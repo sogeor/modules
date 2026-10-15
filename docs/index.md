@@ -5,7 +5,7 @@ A cluster is described once in YAML; the modules validate the description, creat
 and produce either a Talos cluster, an Ansible inventory or Cluster API manifests from it.
 
 !!! note "Status"
-    The cluster description (schema, `cluster-spec`, reference clusters, policies), `providers/proxmox`, `talos-cluster`, `providers/byo` and `ansible-inventory` are ready; the other modules
+    The cluster description (schema, `cluster-spec`, reference clusters, policies), `providers/proxmox`, `talos-cluster`, `providers/byo`, `ansible-inventory` and `capi-cluster` are ready; the other modules
     are added one per release in the order of the [module catalog](#module-catalog).
 
 ## Who this is for
@@ -24,11 +24,11 @@ and produce either a Talos cluster, an Ansible inventory or Cluster API manifest
 | `modules/talos-cluster` | Talos Linux cluster through `siderolabs/talos`, Cilium at bootstrap | ready (unreleased) |
 | `modules/providers/byo` | Registration of existing servers | ready (unreleased) |
 | `modules/ansible-inventory` | Ansible inventory from node contracts | ready (unreleased) |
-| `modules/capi-cluster` | Cluster API manifests from a description | planned |
+| `modules/capi-cluster` | Cluster API manifests (CAPMOX, CAPO; Talos, kubeadm) from a description | ready (unreleased) |
 | `modules/providers/selectel` | Selectel networks and projects for cloud clusters | planned |
 | `modules/mesh-registration` | Headscale pre-auth keys | planned |
 | `modules/dns-records`, `modules/cloudflare-apps` | DNS records and Cloudflare Tunnel hostnames | planned |
-| `clusters/*.yaml` | Reference descriptions `mgmt`, `main`, `talos` | ready (unreleased) |
+| `clusters/*.yaml` | Reference descriptions `mgmt`, `main`, `talos`, `astra` | ready (unreleased) |
 | `policies/conftest` | Policies for cluster descriptions (ready, unreleased); plan policies | planned |
 
 ## Place in the platform

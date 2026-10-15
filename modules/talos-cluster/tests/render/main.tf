@@ -50,11 +50,35 @@ module "ha" {
   inline_manifests = { cilium = local.manifest }
 }
 
+module "cloud" {
+  source = "../../config"
+
+  cluster = {
+    name              = "cloud"
+    pod_cidr          = "10.30.0.0/16"
+    service_cidr      = "10.31.0.0/16"
+    workloads_allowed = true
+  }
+
+  nodes = {
+    cp      = { role = "control-plane", labels = { "sogeor.com/pool" = "cp" }, taints = [] }
+    workers = { role = "worker", labels = { "sogeor.com/pool" = "workers" }, taints = [] }
+  }
+
+  installer_image         = local.installer
+  install_disk            = "/dev/vda"
+  disk_encryption         = "nodeid"
+  inline_manifests        = {}
+  external_cloud_provider = true
+}
+
 locals {
   checks = {
-    single-cp-1  = { role = "controlplane", patches = module.single.patches["cp-1"] }
-    ha-cp-1      = { role = "controlplane", patches = module.ha.patches["cp-1"] }
-    ha-workers-1 = { role = "worker", patches = module.ha.patches["workers-1"] }
+    cloud-cp      = { role = "controlplane", patches = module.cloud.patches["cp"] }
+    cloud-workers = { role = "worker", patches = module.cloud.patches["workers"] }
+    single-cp-1   = { role = "controlplane", patches = module.single.patches["cp-1"] }
+    ha-cp-1       = { role = "controlplane", patches = module.ha.patches["cp-1"] }
+    ha-workers-1  = { role = "worker", patches = module.ha.patches["workers-1"] }
   }
 }
 

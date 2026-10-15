@@ -354,11 +354,11 @@ run "control_plane_multisite_allowed" {
 
   variables {
     cluster = {
-      cluster                 = "lab", cluster_id = 5, distribution = "talos", kubernetes_version = "1.37.1", topology = "ha"
+      cluster                 = "lab", cluster_id = 5, distribution = "kubeadm", kubernetes_version = "1.37.1", topology = "ha", mechanism = "opentofu"
       control_plane_multisite = { enabled = true, reason = "Measured latency below 10 ms." }
       pools = {
-        home  = { role = "control-plane", os = "talos", provider = "proxmox", site = "home", size = "m", count = 1 }
-        cloud = { role = "control-plane", os = "talos", provider = "selectel", site = "selectel-ru-9", size = "m", count = 2 }
+        home = { role = "control-plane", os = "ubuntu-2404", provider = "proxmox", site = "home", size = "m", count = 1 }
+        vds  = { role = "control-plane", os = "ubuntu-2404", provider = "byo", site = "vds-1", size = "m", count = 2 }
       }
     }
   }
@@ -397,4 +397,42 @@ run "invalid_kubernetes_version" {
   }
 
   expect_failures = [var.cluster]
+}
+
+run "capi_single_provider" {
+  command = plan
+
+  variables {
+    cluster = {
+      cluster = "bad", cluster_id = 5, distribution = "kubeadm", kubernetes_version = "1.37.1", topology = "single", mechanism = "capi"
+      pools = {
+        cp      = { role = "control-plane", os = "ubuntu-2404", provider = "selectel", site = "selectel-ru-9", size = "m", count = 1 }
+        workers = { role = "worker", os = "ubuntu-2404", provider = "proxmox", site = "home", size = "m", count = 1 }
+      }
+    }
+    allow_planned_images = true
+  }
+
+  assert {
+    condition     = [for v in output.violations : v.rule] == ["capi-single-provider"]
+    error_message = "A CAPI cluster with pools on proxmox and selectel must be rejected."
+  }
+}
+
+run "capi_distribution" {
+  command = plan
+
+  variables {
+    cluster = {
+      cluster = "bad", cluster_id = 5, distribution = "k3s", kubernetes_version = "1.37.1", topology = "single", mechanism = "capi"
+      pools = {
+        cp = { role = "control-plane", os = "ubuntu-2404", provider = "proxmox", site = "home", size = "m", count = 1 }
+      }
+    }
+  }
+
+  assert {
+    condition     = [for v in output.violations : v.rule] == ["capi-distribution"]
+    error_message = "k3s through CAPI must be rejected."
+  }
 }

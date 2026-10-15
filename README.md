@@ -11,7 +11,8 @@ OpenTofu modules and generators of the sogeor cluster constructor.
 > [`cluster-spec`](modules/cluster-spec/README.md), [reference clusters](clusters/) and
 > [policies](policies/conftest/cluster/cluster.rego); Proxmox VE nodes:
 > [`providers/proxmox`](modules/providers/proxmox/README.md); Talos clusters: [`talos-cluster`](modules/talos-cluster/README.md); existing servers and Ansible:
-> [`providers/byo`](modules/providers/byo/README.md), [`ansible-inventory`](modules/ansible-inventory/README.md). Other modules follow, see [ROADMAP.md](ROADMAP.md).
+> [`providers/byo`](modules/providers/byo/README.md), [`ansible-inventory`](modules/ansible-inventory/README.md); Cluster API
+> manifests: [`capi-cluster`](modules/capi-cluster/README.md). Other modules follow, see [ROADMAP.md](ROADMAP.md).
 
 ## Overview
 
@@ -73,9 +74,9 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 
 | Distribution | OS | Proxmox VE | Selectel (OpenStack) | BYO | Status |
 |---|---|---|---|---|---|
-| Talos | talos | ready (OpenTofu); CAPI: planned | planned (CAPI) | planned | in progress |
-| kubeadm | ubuntu-2404, ubuntu-2604 | nodes: ready (OpenTofu, ubuntu-2404); CAPI: planned | planned (CAPI) | planned | in progress |
-| kubeadm | astra-18 | planned (CAPI) | — | planned | planned |
+| Talos | talos | ready (OpenTofu); CAPI manifests: ready | CAPI manifests: ready, image planned | planned | in progress |
+| kubeadm | ubuntu-2404, ubuntu-2604 | nodes: ready (OpenTofu, ubuntu-2404); CAPI manifests: ready | CAPI manifests: ready, image planned | planned | in progress |
+| kubeadm | astra-18 | CAPI manifests: ready, image planned | — | planned | planned |
 | k3s | ubuntu, astra-18 | — | — | — | later |
 
 ## Versions
@@ -89,6 +90,12 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 | `ansible/ansible` | 1.5.0 |
 | Talos Linux (talosctl, config contract) | 1.14.2, `v1.14` |
 | Cilium (Helm chart) | 1.20.2 |
+| Cluster API core, kubeadm bootstrap and control plane | 1.14.3 (`v1beta2`) |
+| CAPMOX (Proxmox VE) | 0.9.1 (`v1alpha2`) |
+| CAPO (OpenStack) | 0.15.0 (`v1beta2`) |
+| CABPT / CACPPT (Talos) | 0.6.13 / 0.5.14 (`v1alpha3`) |
+| kube-vip | 1.2.4 (by digest) |
+| kubeconform | 0.8.0 |
 | tflint | 0.64.0 |
 | Conftest | 0.71.1 |
 | terraform-docs | 0.24.0 |

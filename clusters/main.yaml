@@ -20,12 +20,3 @@ pools:
     site: selectel-ru-9
     size: l
     autoscale: { min: 0, max: 3 }
-  astra:
-    role: worker
-    os: astra-18
-    provider: proxmox
-    site: home
-    size: m
-    count: 1
-    labels:
-      sogeor.com/track: ru

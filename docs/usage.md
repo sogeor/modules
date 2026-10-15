@@ -34,7 +34,9 @@ module "nodes" {
 Goal: a new description that passes every rule.
 
 1. Copy the closest reference: `clusters/mgmt.yaml` (Talos on Proxmox VE, OpenTofu), `clusters/main.yaml`
-   (kubeadm on Selectel with an Astra Linux pool at home, Cluster API) or `clusters/talos.yaml` (Talos on Selectel).
+   (kubeadm on Selectel, Cluster API), `clusters/talos.yaml` (Talos on Selectel) or `clusters/astra.yaml`
+   (kubeadm on Astra Linux at home, Cluster API on Proxmox VE). A Cluster API cluster keeps all pools on one
+   provider.
 2. Change `cluster` and `cluster_id` (unique; it defines the CIDR), then the pools.
 3. Validate:
 
@@ -154,6 +156,40 @@ Goal: Ansible reaches a server outside `home` through the mesh, so the `internet
 
 Check: the server is no longer in `bootstrap_hosts`; `ansible -i inventory.terraform.yml <node name> -m ping`
 succeeds through the mesh. Only then apply the hardening that closes public SSH.
+
+## Render Cluster API manifests
+
+Goal: the CAPI objects of a workload cluster, ready for Argo CD in the management cluster.
+
+Preconditions: a description with `mechanism: capi`, all pools on one provider; the images of every pool exist
+(Proxmox: templates with the tags of the [images contract](architecture.md#images); OpenStack: images by name);
+in `mgmt`: CAPI core, the infrastructure provider (CAPMOX or CAPO), the bootstrap and control-plane providers of
+the distribution, and the credentials Secret (`proxmox.credentials_secret` or `openstack.identity_secret`).
+
+1. Copy `modules/capi-cluster/examples/openstack` into the consuming repository (or write the same calls for
+   Proxmox with the `proxmox` input), set `cluster.yaml` and `terraform.tfvars`.
+2. Render:
+
+    ```bash
+    tofu init
+    tofu apply
+    tofu output -raw manifest > clusters/<name>/capi.yaml
+    ```
+
+    The module has no resources: `apply` only stores the outputs.
+3. Commit `capi.yaml` to the GitOps repository; Argo CD applies it in the namespace named after the cluster.
+
+Expected: `Cluster` reaches `Provisioned`, the control plane `Available`; nodes stay `NotReady` until Argo CD
+installs Cilium (and the cloud controller manager on OpenStack).
+
+Check (in `mgmt`):
+
+```bash
+clusterctl describe cluster <name> -n <name>
+```
+
+To validate the rendered manifests offline the same way as CI: `tools/check-capi.sh` (scenarios in
+`modules/capi-cluster/tests/render`).
 
 ## Mark an image as available
 

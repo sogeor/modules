@@ -1,0 +1,17 @@
+cluster: astra
+cluster_id: 4
+distribution: kubeadm
+kubernetes_version: "1.37.1"
+topology: single
+profiles: [core]
+mechanism: capi
+pools:
+  cp:
+    role: control-plane
+    os: astra-18
+    provider: proxmox
+    site: home
+    size: m
+    count: 1
+    labels:
+      sogeor.com/track: ru

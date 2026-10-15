@@ -43,6 +43,12 @@ variable "inline_manifests" {
   type        = map(string)
 }
 
+variable "external_cloud_provider" {
+  description = "Run the kubelet with an external cloud provider (a cloud controller manager is installed separately)."
+  type        = bool
+  default     = false
+}
+
 locals {
   key = {
     tpm    = { slot = 0, tpm = {} }
@@ -72,7 +78,9 @@ locals {
     },
     { apiVersion = "v1alpha1", kind = "KubeNetworkConfig", podSubnets = [var.cluster.pod_cidr], serviceSubnets = [var.cluster.service_cidr] },
     { apiVersion = "v1alpha1", kind = "KubeSpanConfig", enabled = true },
-  ], local.encryption)
+    ], local.encryption,
+    var.external_cloud_provider ? [{ version = "v1alpha1", cluster = { externalCloudProvider = { enabled = true } } }] : [],
+  )
 
   control_plane = concat(
     [

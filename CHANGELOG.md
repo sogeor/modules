@@ -5,13 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Removed
-
-- Alpine Linux from the base platform: the `alpine` OS, the `allow_experimental` field and the
-  `experimental-os` rule are gone from the cluster description, the schema, `cluster-spec` and the policies.
-
 ### Added
 
+- `modules/capi-cluster`: Cluster API manifests from the cluster description — CAPI 1.14 (`v1beta2`), Proxmox VE
+  through CAPMOX 0.9.1 and OpenStack (Selectel, VK Cloud) through CAPO 0.15.0, Talos through CABPT 0.6.13 and
+  CACPPT 0.5.14 and kubeadm (kube-vip on Proxmox); images by the tag set or name of the images contract,
+  `MachineDeployment` per pool with Cluster Autoscaler bounds and capacity, `MachineHealthCheck`, content-hashed
+  template names; ADR 0006.
+- `tools/check-capi.sh` and CI step: renders the scenarios offline and validates them with kubeconform 0.8.0
+  against the CRDs of the pinned provider releases (`tools/crd-schemas.py`).
+- Rules `capi-single-provider` and `capi-distribution` in `cluster-spec` and Conftest.
+- `talos-cluster/config`: `external_cloud_provider` for clouds with a cloud controller manager.
+- Reference description `clusters/astra.yaml` (kubeadm on Astra Linux at home, Cluster API).
 - `modules/providers/byo`: existing servers as nodes of BYO pools in the normalized node contract, with checks of
   the host count, addresses and SSH users.
 - `modules/ansible-inventory` (`ansible/ansible` 1.5.0): inventory from nodes of any providers with the platform
@@ -41,3 +46,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Renovate waits 7 days after a release before proposing it (`minimumReleaseAge`); security updates are not delayed.
 - Documentation skeleton to the platform standard and MkDocs site; ADR 0001 (record decisions) and
   ADR 0002 (repository layout).
+
+### Changed
+
+- `clusters/main.yaml`: the Astra Linux pool moved to `clusters/astra.yaml` — a Cluster API cluster uses one
+  provider.
+
+### Removed
+
+- Alpine Linux from the base platform: the `alpine` OS, the `allow_experimental` field and the
+  `experimental-os` rule are gone from the cluster description, the schema, `cluster-spec` and the policies.

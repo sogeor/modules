@@ -97,6 +97,32 @@ Symptom → cause → fix. Entries are added from real failures.
 - **Cause:** the `hosts` list of a pool and its `count` in the cluster description differ.
 - **Fix:** add or remove hosts, or change `count`, so both match.
 
+## cluster-spec: `[capi-single-provider]`
+
+- **Cause:** a cluster with mechanism `capi` has pools on several providers; a CAPI `Cluster` has one
+  infrastructure provider.
+- **Fix:** move the pools of the other provider into a separate cluster description (as `clusters/astra.yaml`).
+
+## capi-cluster: `images.builds needs a build for every pool OS`
+
+- **Cause:** Proxmox templates and OpenStack Ubuntu images are selected by their exact build.
+- **Fix:** set `images.builds` to the build published by [images](https://github.com/sogeor/images), for example
+  `{ ubuntu-2404 = "v20-1" }`.
+
+## Cluster API: machines are `Provisioning` forever on Proxmox VE
+
+- **Cause:** no template carries exactly the tag set of the images contract (`matchPolicy: exact`), or the
+  address range is exhausted.
+- **Fix:** compare the tags of the template in the Proxmox web UI with `templateSelector.matchTags` in the
+  manifest; check `kubectl -n <cluster> get proxmoxmachines` and the CAPMOX logs.
+
+## Cluster API: nodes stay `NotReady` and are replaced by the health check
+
+- **Cause:** the manifests contain no CNI; Argo CD has not installed Cilium yet (and on OpenStack the cloud
+  controller manager that removes the `uninitialized` taint).
+- **Fix:** make sure the cluster is registered in Argo CD and the Cilium and CCM applications sync; the health
+  check replaces a node that is not `Ready` for 15 minutes.
+
 ## Renovate does not update a Python lock file
 
 - **Cause:** the pip-compile header is missing or contains `--no-index`.

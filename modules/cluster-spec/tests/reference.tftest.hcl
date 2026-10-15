@@ -35,8 +35,8 @@ run "main" {
   }
 
   assert {
-    condition     = toset([for w in output.warnings : w.rule]) == toset(["image-planned"]) && length(output.warnings) == 3
-    error_message = "main must report the three pools with planned images as warnings."
+    condition     = toset([for w in output.warnings : w.rule]) == toset(["image-planned"]) && length(output.warnings) == 2
+    error_message = "main must report the two pools with planned images as warnings."
   }
 
   assert {
@@ -50,7 +50,7 @@ run "main" {
   }
 
   assert {
-    condition     = output.spec.pools.astra.mesh_required == false && output.spec.pools.workers.mesh_required == true
+    condition     = output.spec.pools.workers.mesh_required && output.spec.control_plane.provider == "selectel"
     error_message = "mesh_required must be true outside home."
   }
 }
@@ -64,7 +64,7 @@ run "main_strict" {
   }
 
   assert {
-    condition     = length([for v in output.violations : v if v.rule == "image-planned"]) == 3
+    condition     = length([for v in output.violations : v if v.rule == "image-planned"]) == 2
     error_message = "Without allow_planned_images the planned images of main must be violations."
   }
 }
@@ -84,5 +84,24 @@ run "talos" {
   assert {
     condition     = output.spec.labels["sogeor.com/profile-data"] == "true" && output.spec.labels["sogeor.com/cluster"] == "talos"
     error_message = "Cluster labels must include the name and profiles."
+  }
+}
+
+run "astra" {
+  command = plan
+
+  variables {
+    cluster              = yamldecode(file("../../clusters/astra.yaml"))
+    allow_planned_images = true
+  }
+
+  assert {
+    condition     = length(output.violations) == 0 && output.spec.mechanism == "capi" && output.spec.pools.cp.mesh_required == false
+    error_message = "astra must be a valid CAPI cluster at home when planned images are allowed."
+  }
+
+  assert {
+    condition     = output.spec.network.pod_cidr == "10.40.0.0/16" && output.spec.network.service_cidr == "10.41.0.0/16"
+    error_message = "astra CIDR must follow cluster_id 4."
   }
 }

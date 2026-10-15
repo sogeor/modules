@@ -61,6 +61,7 @@ jobs:
 
       - name: Install tools
         run: |
+          python3 -m pip install --user --quiet --require-hashes -r .github/requirements-lint.txt
           tools/install-tools.sh "$RUNNER_TEMP/bin"
           echo "$RUNNER_TEMP/bin" >>"$GITHUB_PATH"
 
@@ -69,6 +70,9 @@ jobs:
 
       - name: Talos configuration (talosctl validate)
         run: tools/check-talos.sh
+
+      - name: Cluster API manifests (kubeconform)
+        run: tools/check-capi.sh
 
   policies:
     name: policies

@@ -94,6 +94,8 @@ Every rule has the same id in `cluster-spec` and in Conftest.
 | `autoscale-mechanism` | `autoscale` without mechanism `capi` |
 | `control-plane-autoscale` | A control-plane pool uses `autoscale` |
 | `mechanism-provider` | A pool provider does not support the mechanism |
+| `capi-single-provider` | Mechanism `capi` with pools on more than one provider (a CAPI `Cluster` has one infrastructure provider) |
+| `capi-distribution` | Mechanism `capi` with distribution `k3s` (use `opentofu`) |
 | `control-plane-missing` | No control-plane pool |
 | `topology-control-plane` | `single` with other than 1 control-plane node; `ha` with fewer than 3 or an even number |
 | `control-plane-multisite` | Control-plane pools on several sites without `control_plane_multisite`, or without its reason |
@@ -256,6 +258,81 @@ Cilium defaults: `kubeProxyReplacement: true`, API through KubePrism (`localhost
 `cluster.name` and `cluster.id` from the description (ClusterMesh-ready), cgroup and capabilities for Talos,
 `operator.replicas` 1 in `single` and 2 in `ha`.
 
+## capi-cluster
+
+Source: `modules/capi-cluster`. Generated reference: `modules/capi-cluster/README.md`. No providers: the module
+only renders YAML; it never connects to a cluster or a cloud.
+
+Supported: `talos` and `kubeadm`, on `proxmox` (CAPMOX) or `selectel`/`vkcloud` (CAPO), exactly one
+control-plane pool, all pools on one provider.
+
+### Inputs
+
+| Name | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `spec` | object | — | yes | `module.<name>.spec` of `cluster-spec`; mechanism must be `capi` | `module.spec.spec` |
+| `namespace` | string | cluster name | no | Namespace of the CAPI objects in `mgmt` | `clusters` |
+| `images.talos.version` | string | — | for Talos | Talos version of the image | `v1.14.2` |
+| `images.talos.schematic_id` | 64 hex | — | for Talos | Image Factory schematic of the image and installer | `CHANGE_ME` |
+| `images.builds` | map(OS → build) | `{}` | Proxmox: every OS; OpenStack: every OS except `talos` | Image build per OS ([images contract](architecture.md#images)) | `{ ubuntu-2404 = "v20-1", talos = "v20-1" }` |
+| `proxmox.source_node` | string | — | for Proxmox | Node that holds the templates | `pve` |
+| `proxmox.allowed_nodes` | list(string) | `[]` | no | Nodes that may run the VMs; empty — all | `["pve"]` |
+| `proxmox.storage` | string | template storage | no | Storage of the full clones | `local-lvm` |
+| `proxmox.bridge` | string | — | yes | Bridge of the VMs | `vmbr0` |
+| `proxmox.vlan` | number | none | no | VLAN tag | `40` |
+| `proxmox.addresses` | list(string) | — | yes | Node address ranges or CIDRs (CAPMOX in-cluster IPAM) | `["203.0.113.40-203.0.113.49"]` |
+| `proxmox.prefix` | number | — | yes | Prefix length of the node network | `24` |
+| `proxmox.gateway` | IPv4 | — | yes | Default gateway | `203.0.113.1` |
+| `proxmox.dns_servers` | list(IPv4) | — | yes | DNS servers | `["203.0.113.1"]` |
+| `proxmox.control_plane_endpoint` | IPv4 | — | yes | API VIP, outside `addresses` | `203.0.113.39` |
+| `proxmox.vip_interface` | string | none (kube-vip detects it) | for Talos | Interface that announces the VIP (Talos: `talosctl get links`) | `ens18` |
+| `proxmox.credentials_secret` | string | CAPMOX default | no | Secret with the Proxmox API token for this cluster | `proxmox-credentials` |
+| `openstack.identity_secret` | string | — | for OpenStack | Secret with `clouds.yaml` (created by ESO from OpenBao) | `openstack-credentials` |
+| `openstack.cloud_name` | string | `openstack` | no | Cloud entry in `clouds.yaml` | `openstack` |
+| `openstack.external_network` | string | — | yes | External network name (floating IPs, router) | `external-network` |
+| `openstack.node_cidr` | CIDR | `10.100.0.0/24` | no | Managed node subnet | `10.100.0.0/24` |
+| `openstack.dns_nameservers` | list(IPv4) | — | yes | DNS of the node subnet | `["198.51.100.53"]` |
+| `openstack.flavors` | map(size → flavor) | — | yes | Flavor for every pool size | `{ m = "CHANGE_ME" }` |
+| `openstack.volume_type` | string | cloud default | no | Root volume type | `CHANGE_ME` |
+| `openstack.api_floating_ip` | bool | `true` | no | Floating IP for the API (reachable from `mgmt`) | `true` |
+| `openstack.load_balancer` | bool | `true` for `ha` | no | Managed load balancer (Octavia) in front of the API | `false` |
+| `openstack.api_allowed_cidrs` | list(CIDR) | `[]` | no | Load balancer allow-list; empty — any | `["203.0.113.0/24"]` |
+| `openstack.ssh_key_name` | string | none | no | Key pair for kubeadm nodes (bootstrap only) | `bootstrap` |
+| `talos_disk_encryption` | `nodeid` \| `none` | `nodeid` | no | Key of the Talos STATE and EPHEMERAL volumes (the CAPI images have no TPM) | `nodeid` |
+
+### Outputs
+
+| Name | Description |
+|---|---|
+| `objects` | CAPI objects in apply order; preconditions check the inputs above |
+| `manifest` | All objects as one multi-document YAML |
+| `infrastructure` | `proxmox` or `openstack` |
+
+### What is rendered
+
+| Object | API | When |
+|---|---|---|
+| `Cluster` | `cluster.x-k8s.io/v1beta2` | Always; Pod/Service CIDR and the `sogeor.com/*` labels |
+| `ProxmoxCluster` / `OpenStackCluster` | `v1alpha2` / `v1beta2` | By provider |
+| `TalosControlPlane` / `KubeadmControlPlane` | `v1alpha3` / `v1beta2` | By distribution |
+| `ProxmoxMachineTemplate` / `OpenStackMachineTemplate` | `v1alpha2` / `v1beta2` | Per pool, named `<cluster>-<pool>-<hash>` |
+| `TalosConfigTemplate` / `KubeadmConfigTemplate` | `v1alpha3` / `v1beta2` | Per worker pool |
+| `MachineDeployment` | `v1beta2` | Per worker pool; `replicas` from `count`, or autoscaler annotations |
+| `MachineHealthCheck` | `v1beta2` | Workers; control plane in `ha`. Remediates a node not `Ready` for 15 minutes, or without a node 20 minutes after creation |
+
+Images: Proxmox templates by the exact tag set (`packer;talos;base;talos-<x-y-z>;schematic-<12 hex>;v<build>` or
+`packer;<os>;k8s;k8s-<maj>-<min>;v<build>`); OpenStack images by name (`talos-v<version>-<12 hex>` or
+`<os>-k8s-v<build>`).
+
+Nodes: Talos gets the documents of [talos-cluster](#talos-cluster) without Cilium (installed by Argo CD), with
+`nodeid` encryption, disk `/dev/sda` (Proxmox) or `/dev/vda` (OpenStack), the VIP on Proxmox and
+`externalCloudProvider` on OpenStack. kubeadm gets pool labels (`node-labels`) and taints, no kube-proxy, kube-vip
+on Proxmox and `cloud-provider=external` on OpenStack.
+
+Autoscaled pools: `cluster.x-k8s.io/cluster-api-autoscaler-node-group-{min,max}-size` and
+`capacity.cluster-autoscaler.kubernetes.io/{cpu,memory,ephemeral-disk,labels,taints}`; `replicas` is left to the
+autoscaler (exclude it from Argo CD diffs).
+
 ## providers/byo
 
 Source: `modules/providers/byo`. Generated reference: `modules/providers/byo/README.md`. No provider; creates no
@@ -337,7 +414,7 @@ with access to its state backend.
 | `docs` | pull request, push to `master`, manual | — | — |
 | `scorecard` | weekly, push to `master`, ruleset change | — | `SCORECARD_TOKEN` (repository secret, fine-grained PAT, Administration: read-only) |
 
-Jobs of `validate`: `linters`, `opentofu` (`tools/check-modules.sh`, `tools/check-talos.sh`), `policies` (schema and Conftest),
+Jobs of `validate`: `linters`, `opentofu` (`tools/check-modules.sh`, `tools/check-talos.sh`, `tools/check-capi.sh`), `policies` (schema and Conftest),
 `security / *` (reusable `security-lite`).
 
 Tool versions and SHA-256 checksums:
@@ -350,6 +427,9 @@ Tool versions and SHA-256 checksums:
 | `tools/install-tools.sh` | `CONFTEST_VERSION`, `CONFTEST_SHA256` | Conftest, `Linux_x86_64.tar.gz` |
 | `tools/install-tools.sh` | `TFDOCS_VERSION`, `TFDOCS_SHA256` | terraform-docs, `linux-amd64.tar.gz` |
 | `tools/install-tools.sh` | `TALOSCTL_VERSION`, `TALOSCTL_SHA256` | talosctl, `talosctl-linux-amd64` |
+
+| `tools/check-capi.sh` | `KUBECONFORM_VERSION`, `KUBECONFORM_SHA256` | kubeconform, `linux-amd64.tar.gz` |
+| `tools/check-capi.sh` | `CRDS` | Release URL and SHA-256 of the CRD bundle of every CAPI provider |
 
 Update a version and its checksum together; the checksum comes from the release checksum file.
 
