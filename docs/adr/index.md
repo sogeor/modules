@@ -7,6 +7,7 @@
 | [0003](0003-cluster-description-validation.md) | Validation of the cluster description | accepted |
 | [0004](0004-proxmox-nodes.md) | Proxmox VE nodes: template clones and the Talos ISO | accepted |
 | [0005](0005-talos-cluster.md) | Talos cluster: lifecycle resources, Cilium at bootstrap, TPM encryption | accepted |
+| [0006](0006-capi-manifests.md) | Cluster API manifests: one provider per cluster, plain manifests | accepted |
 
 New decisions: copy the structure of an existing file, take the next number, start with status
 `proposed`. See [0001](0001-record-architecture-decisions.md).

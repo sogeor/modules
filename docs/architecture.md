@@ -57,7 +57,9 @@ flowchart TB
 | Cluster API | Provider with an API and a CAPI provider (workload clusters) | `Cluster`, control plane, `MachineDeployment`, `MachineHealthCheck`, Cluster Autoscaler bounds |
 | OpenTofu | The management cluster, static and BYO nodes, providers without CAPI | VMs or registered nodes → Talos machine configuration or Ansible inventory |
 
-Both take the same cluster description and expose the same node contract.
+Both take the same cluster description and expose the same node contract. A Cluster API cluster keeps all pools
+on one provider (rule `capi-single-provider`, [ADR 0006](adr/0006-capi-manifests.md)); k3s is created only by
+OpenTofu.
 
 ## Contracts
 
@@ -100,10 +102,12 @@ New images do not replace existing nodes.
 | | `single` | `ha` |
 |---|---|---|
 | Control plane nodes | 1, workloads allowed on it | 3 (odd, at least 3) |
-| Cluster API `MachineHealthCheck` | yes | yes |
+| Cluster API `MachineHealthCheck` | workers | workers and control plane |
+| Cluster API API endpoint | Proxmox: VIP; OpenStack: floating IP | Proxmox: VIP; OpenStack: load balancer |
 
 ## Decisions
 
 See [Decisions](adr/index.md), in particular [0002 Repository layout](adr/0002-repository-layout.md) and
-[0003 Cluster description validation](adr/0003-cluster-description-validation.md).
+[0003 Cluster description validation](adr/0003-cluster-description-validation.md) and
+[0006 Cluster API manifests](adr/0006-capi-manifests.md).
 Platform-wide decisions (constructor, Cluster API, topology) are in the [docs](https://github.com/sogeor/docs) repository.

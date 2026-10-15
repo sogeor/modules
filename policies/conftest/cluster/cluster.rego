@@ -111,6 +111,18 @@ deny contains sprintf("[mechanism-provider] pool %s: provider %s does not suppor
 	not mechanism in matrix.providers[p.provider].mechanisms
 }
 
+pool_providers := {p.provider | some p in input.pools}
+
+deny contains sprintf("[capi-single-provider] mechanism capi needs all pools on one provider (current: %s)", [concat(", ", sort(pool_providers))]) if {
+	mechanism == "capi"
+	count(pool_providers) > 1
+}
+
+deny contains "[capi-distribution] distribution k3s is not supported with mechanism capi; use mechanism opentofu" if {
+	mechanism == "capi"
+	input.distribution == "k3s"
+}
+
 deny contains "[control-plane-missing] at least one pool with role control-plane is required" if {
 	count(cp_names) == 0
 }

@@ -64,3 +64,4 @@ nav:
       - "0003 Cluster description validation": adr/0003-cluster-description-validation.md
       - "0004 Proxmox VE nodes": adr/0004-proxmox-nodes.md
       - "0005 Talos cluster": adr/0005-talos-cluster.md
+      - "0006 Cluster API manifests": adr/0006-capi-manifests.md

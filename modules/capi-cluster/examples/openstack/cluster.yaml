@@ -1,0 +1,22 @@
+cluster: talos
+cluster_id: 3
+distribution: talos
+kubernetes_version: "1.37.1"
+topology: single
+profiles: [core, data]
+mechanism: capi
+pools:
+  cp:
+    role: control-plane
+    os: talos
+    provider: selectel
+    site: selectel-ru-9
+    size: m
+    count: 1
+  workers:
+    role: worker
+    os: talos
+    provider: selectel
+    site: selectel-ru-9
+    size: l
+    autoscale: { min: 0, max: 3 }

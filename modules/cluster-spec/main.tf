@@ -11,6 +11,8 @@ locals {
   cp_count = sum(concat([0], [for p in values(local.cp_pools) : coalesce(p.count, 0)]))
   cp_sites = distinct([for p in values(local.cp_pools) : p.site])
 
+  providers = sort(distinct([for p in values(local.pools) : p.provider]))
+
   multisite_enabled = try(local.c.control_plane_multisite.enabled, false)
   multisite_reason  = trimspace(try(local.c.control_plane_multisite.reason, ""))
 
@@ -82,6 +84,16 @@ locals {
       rule    = "mechanism-provider"
       message = "pool ${name}: provider ${p.provider} does not support mechanism ${local.mechanism}"
     } if !contains(try(local.matrix.providers[p.provider].mechanisms, [local.mechanism]), local.mechanism)],
+
+    local.mechanism == "capi" && length(local.providers) > 1 ? [{
+      rule    = "capi-single-provider"
+      message = "mechanism capi needs all pools on one provider (current: ${join(", ", local.providers)})"
+    }] : [],
+
+    local.mechanism == "capi" && local.c.distribution == "k3s" ? [{
+      rule    = "capi-distribution"
+      message = "distribution k3s is not supported with mechanism capi; use mechanism opentofu"
+    }] : [],
 
     length(local.cp_pools) == 0 ? [{
       rule    = "control-plane-missing"
