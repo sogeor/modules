@@ -22,7 +22,7 @@ module "capi" {
   spec   = module.spec.spec
   images = { talos = { version = "v1.14.2", schematic_id = "CHANGE_ME" } }
   openstack = {
-    identity_secret  = "talos-openstack-credentials"
+    identity_secret  = "capo"
     external_network = "CHANGE_ME"
     dns_nameservers  = ["198.51.100.53"]
     flavors          = { m = "CHANGE_ME", l = "CHANGE_ME" }

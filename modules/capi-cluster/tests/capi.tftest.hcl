@@ -143,7 +143,7 @@ run "kubeadm_openstack_autoscale" {
     }
     proxmox = null
     openstack = {
-      identity_secret  = "openstack-credentials"
+      identity_secret  = "capo"
       external_network = "external-network"
       dns_nameservers  = ["198.51.100.53"]
       flavors          = { m = "flavor-m", l = "flavor-l" }
@@ -198,7 +198,7 @@ run "talos_openstack_image" {
     }
     proxmox = null
     openstack = {
-      identity_secret  = "openstack-credentials"
+      identity_secret  = "capo"
       external_network = "external-network"
       dns_nameservers  = ["198.51.100.53"]
       flavors          = { m = "flavor-m" }

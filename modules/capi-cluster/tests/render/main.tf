@@ -21,7 +21,7 @@ locals {
   }
 
   openstack = {
-    identity_secret  = "openstack-credentials"
+    identity_secret  = "capo"
     external_network = "external-network"
     dns_nameservers  = ["198.51.100.53"]
     flavors          = { m = "SL1.2-4096", l = "SL1.4-8192" }
