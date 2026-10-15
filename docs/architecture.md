@@ -50,6 +50,24 @@ flowchart TB
   M --> R[Argo CD in mgmt applies them]
 ```
 
+## Public edge
+
+`dns-records` and `cloudflare-apps` are independent of the cluster description: they take Cloudflare IDs and
+hostnames from the consuming root module in `management`.
+
+```mermaid
+flowchart LR
+  U[Internet] --> CF[Cloudflare edge<br/>proxied CNAME]
+  CF --> T[Cloudflare Tunnel]
+  T <-->|outbound only| CD[cloudflared in the cluster]
+  CD --> I[ingress / service]
+  O[cloudflare-apps] -.->|tunnel, ingress, CNAME, token| CF
+```
+
+The cluster opens no inbound ports: `cloudflared` keeps outbound connections to Cloudflare. Only Tunnel and DNS
+are used, no Access, WAF or WARP. Internal names (`lab` subdomain) are served by split DNS in the mesh, not by
+public records.
+
 ## Two mechanisms, one interface
 
 | Mechanism | When | Output |

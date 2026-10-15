@@ -15,6 +15,9 @@
 | Encrypted Talos disks | STATE and EPHEMERAL volumes use LUKS2 with a TPM-sealed key by default (`talos-cluster`) |
 | Kubernetes secrets encrypted in etcd | Talos default (secretbox key in the machine secrets) |
 | No kube-proxy, policy-capable CNI from the first boot | Cilium with kube-proxy replacement installed at bootstrap |
+| No inbound ports for published services | `cloudflare-apps` publishes through an outbound-only Cloudflare Tunnel; hostnames without a rule get `404` |
+| Origin TLS verified by default | `no_tls_verify` is off and needs a written reason to be turned on |
+| Tunnel token not printed | `tunnel_token` is `sensitive = true` |
 | Least exposure of the Talos API | Talos has no SSH; access only with the client certificate from `talosconfig` |
 
 ## What is not guaranteed
@@ -27,6 +30,9 @@
   "SecureBoot disabled" state, so it protects a disk copied away from its VM, but not against someone who can
   boot a modified system on the same VM. SecureBoot for Talos VMs is planned ([ROADMAP](https://github.com/sogeor/modules/blob/master/ROADMAP.md)).
 - On Proxmox the vTPM state lives on the same storage as the disks; copying the whole VM copies the key too.
+- The tunnel token and the Cloudflare API token grant control over published hostnames; their storage and
+  rotation are up to the consuming repository and the secret store.
+- Cloudflare terminates TLS of published hostnames and sees the traffic in clear text.
 - The Cilium chart is pinned by version; its archive is not verified by digest by the Helm provider.
 
 ## Assurance case

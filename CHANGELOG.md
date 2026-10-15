@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `modules/dns-records` (`cloudflare/cloudflare` 5.27.0): A, AAAA, CNAME, TXT, MX and CAA records of a Cloudflare
+  zone with checks of names, TTL, proxying and record data.
+- `modules/cloudflare-apps`: remotely managed Cloudflare Tunnel with ingress rules (path rules first, `404`
+  catch-all), proxied CNAME per hostname and a sensitive token for `cloudflared`; origin TLS verification can be
+  turned off only with a reason.
 - `modules/capi-cluster`: Cluster API manifests from the cluster description — CAPI 1.14 (`v1beta2`), Proxmox VE
   through CAPMOX 0.9.1 and OpenStack (Selectel, VK Cloud) through CAPO 0.15.0, Talos through CABPT 0.6.13 and
   CACPPT 0.5.14 and kubeadm (kube-vip on Proxmox); images by the tag set or name of the images contract,

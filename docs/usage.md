@@ -191,6 +191,47 @@ clusterctl describe cluster <name> -n <name>
 To validate the rendered manifests offline the same way as CI: `tools/check-capi.sh` (scenarios in
 `modules/capi-cluster/tests/render`).
 
+## Publish a service through Cloudflare Tunnel
+
+Goal: a cluster service is reachable on a public hostname without a public load balancer.
+
+Preconditions: the zone is on Cloudflare; a Cloudflare API token with the permissions from
+[Configuration](configuration.md#cloudflare-api-token) is in `CLOUDFLARE_API_TOKEN`.
+
+1. Call `cloudflare-apps` in the consuming root module (see `modules/cloudflare-apps/examples/basic`) with one
+   entry per hostname; `service` is the in-cluster address of the ingress controller or the service.
+2. Apply in the consuming repository.
+3. Store the token for `cloudflared` in the secret store of the cluster (OpenBao, or SOPS before OpenBao exists):
+
+    ```bash
+    tofu output -raw tunnel_token
+    ```
+
+4. Deploy `cloudflared` in the cluster with `TUNNEL_TOKEN` from that secret.
+
+Expected: **Zero Trust → Networks → Tunnels** shows the tunnel as **Healthy**; `curl -I https://<hostname>`
+returns the response of the service; any other hostname routed to the tunnel returns `404`.
+
+If not: [Troubleshooting](troubleshooting.md#tunnel-hostname-returns-an-error).
+
+## Manage DNS records
+
+Goal: records of the platform zone (CAA, SPF, CNAME for GitHub Pages) live in code.
+
+1. Call `dns-records` with the records (see `modules/dns-records/examples/basic`).
+2. Import records that already exist instead of creating duplicates, in the consuming root module:
+
+    ```hcl
+    import {
+      to = module.dns.cloudflare_dns_record.this["docs"]
+      id = "<zone_id>/<record_id>"
+    }
+    ```
+
+3. Apply in the consuming repository.
+
+Check: `dig +short CAA example.com` and the other records return the configured values.
+
 ## Mark an image as available
 
 When [images](https://github.com/sogeor/images) builds a new (OS, provider) image, change its status in

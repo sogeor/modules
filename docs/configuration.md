@@ -406,6 +406,95 @@ search_child_modules: true
 Save it as `inventory.terraform.yml` (the file name must end in `.yml`); the root module must be initialized
 with access to its state backend.
 
+## dns-records
+
+Source: `modules/dns-records`. Generated reference: `modules/dns-records/README.md`.
+Provider: `cloudflare/cloudflare` 5.27.0, configured by the caller; the token comes from `CLOUDFLARE_API_TOKEN`.
+
+### Inputs
+
+| Name | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `zone_id` | string (32 hex) | — | yes | Cloudflare zone ID | `0123456789abcdef0123456789abcdef` |
+| `records` | map(object) | `{}` | no | Records by key, fields below | see below |
+
+Fields of `records.<key>`:
+
+| Field | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `name` | string | — | yes | Fully qualified lowercase name; `*.` allowed | `docs.example.com` |
+| `type` | `A` \| `AAAA` \| `CNAME` \| `TXT` \| `MX` \| `CAA` | — | yes | Record type | `CNAME` |
+| `content` | string | — | all but CAA | Value: IPv4 for A, IPv6 for AAAA, name for CNAME and MX, text for TXT | `example.github.io` |
+| `ttl` | number | `1` | no | `1` (automatic) or 60–86400; proxied records need `1` | `300` |
+| `proxied` | bool | `false` | no | Through the Cloudflare proxy; A, AAAA and CNAME only | `true` |
+| `priority` | number | — | MX only | MX priority | `10` |
+| `comment` | string | — | no | Comment shown in the dashboard | `GitHub Pages` |
+| `caa` | object(`flags` = `0`, `tag`, `value`) | — | CAA only | CAA data | `{ tag = "issue", value = "letsencrypt.org" }` |
+
+### Outputs
+
+| Name | Description |
+|---|---|
+| `records` | Per key: `id`, `name`, `type` |
+
+!!! warning "GitHub Pages"
+    A CNAME for a GitHub Pages custom domain must stay `proxied = false` (DNS only), otherwise GitHub cannot issue
+    the certificate and **Enforce HTTPS** is unavailable.
+
+## cloudflare-apps
+
+Source: `modules/cloudflare-apps`. Generated reference: `modules/cloudflare-apps/README.md`.
+Provider: `cloudflare/cloudflare` 5.27.0, configured by the caller; the token comes from `CLOUDFLARE_API_TOKEN`.
+
+### Inputs
+
+| Name | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `account_id` | string (32 hex) | — | yes | Cloudflare account ID that owns the tunnel | `0123456789abcdef0123456789abcdef` |
+| `zone_id` | string (32 hex) | — | yes | Zone of the public hostnames | `fedcba9876543210fedcba9876543210` |
+| `tunnel_name` | DNS label | — | yes | Tunnel name, usually the cluster name | `main` |
+| `apps` | map(object) | — | yes (≥ 1) | Public hostnames by key, fields below | see below |
+| `comment` | string | `Managed by OpenTofu: Cloudflare Tunnel` | no | Comment on the hostname DNS records | — |
+
+Fields of `apps.<key>`:
+
+| Field | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `hostname` | string | — | yes | Public fully qualified name in the zone | `store.example.com` |
+| `service` | string | — | yes | Origin: `http(s)://`, `tcp://`, `ssh://`, `rdp://`, `smb://`, `unix://`, `unix+tls://` URL or `http_status:CODE` | `http://ingress-nginx-controller.ingress-nginx.svc:80` |
+| `path` | string (regex) | — | no | Only requests whose path matches | `^/api/` |
+| `origin_request.http_host_header` | string | — | no | Host header sent to the origin | `store.example.com` |
+| `origin_request.origin_server_name` | string | — | no | Expected name in the origin certificate | `oauth2-proxy.auth.svc` |
+| `origin_request.http2_origin` | bool | — | no | HTTP/2 to an HTTPS origin | `true` |
+| `origin_request.connect_timeout` | number (s) | — | no | TCP connect timeout | `10` |
+| `origin_request.tls_timeout` | number (s) | — | no | TLS handshake timeout | `10` |
+| `origin_request.no_tls_verify` | bool | `false` | no | Skip origin certificate verification | `false` |
+| `origin_request.no_tls_verify_reason` | string | — | with `no_tls_verify` | Why verification is off; track removal in an issue | `Self-signed bootstrap certificate` |
+
+Hostname and path pairs must be unique. Routing order: rules with `path` first, then the rest, each group sorted
+by key, then `http_status:404` for everything else.
+
+### Outputs
+
+| Name | Description |
+|---|---|
+| `tunnel_id` | Tunnel UUID |
+| `tunnel_cname` | `<tunnel_id>.cfargotunnel.com`, the target of the hostname records |
+| `tunnel_token` | Sensitive; `TUNNEL_TOKEN` for `cloudflared` |
+| `hostnames` | Published hostnames |
+| `ingress` | Ingress rules in routing order |
+
+### Cloudflare API token
+
+Create it in **My Profile → API Tokens → Create Token → Create Custom Token** with the permissions:
+
+| Scope | Permission | Used by |
+|---|---|---|
+| Account | Cloudflare Tunnel: Edit | `cloudflare-apps` |
+| Zone | DNS: Edit (only the platform zone) | `dns-records`, `cloudflare-apps` |
+
+The token is passed as `CLOUDFLARE_API_TOKEN` from a GitHub Environment of the consuming repository.
+
 ## CI
 
 | Workflow | Trigger | Inputs | Secrets |

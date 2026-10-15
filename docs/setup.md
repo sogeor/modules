@@ -15,9 +15,9 @@ no infrastructure credentials: modules are only tested with mock providers.
 
 | Field | Value |
 |---|---|
-| Description | `OpenTofu modules and generators of the sogeor cluster constructor: one validated cluster description, provider modules with a common node contract, Talos and Cluster API outputs.` |
+| Description | `OpenTofu modules and generators of the sogeor cluster constructor: one validated cluster description, provider modules with a common node contract, Talos and Cluster API outputs, Cloudflare DNS and Tunnel.` |
 | Website | empty until the documentation site exists |
-| Topics | `opentofu` `terraform-modules` `infrastructure-as-code` `kubernetes` `cluster-api` `talos` `proxmox` `openstack` `ansible` `json-schema` `policy-as-code` `devsecops` `platform-engineering` |
+| Topics | `opentofu` `terraform-modules` `infrastructure-as-code` `kubernetes` `cluster-api` `talos` `proxmox` `openstack` `ansible` `json-schema` `policy-as-code` `cloudflare` `devsecops` `platform-engineering` |
 | Include in the home page | Releases — on after the first release; Deployments — off; Packages — off |
 
 When typing topics, finish each with **Space**: Enter picks the highlighted suggestion instead.
