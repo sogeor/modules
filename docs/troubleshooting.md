@@ -127,3 +127,12 @@ Symptom → cause → fix. Entries are added from real failures.
 
 - **Cause:** the pip-compile header is missing or contains `--no-index`.
 - **Fix:** regenerate the file as described in [Operations](operations.md#update-locked-python-dependencies).
+
+## Tunnel hostname returns an error
+
+- **Error 1033** — **cause:** no `cloudflared` is connected; **fix:** check that the pod runs with the current
+  `tunnel_token` (it changes when the tunnel is recreated) and can reach Cloudflare on outbound port 7844.
+- **502 Bad Gateway** — **cause:** `cloudflared` cannot reach `service`; **fix:** check the in-cluster address,
+  port and NetworkPolicy egress from `cloudflared`; for an HTTPS origin set `origin_server_name` to a name in
+  its certificate.
+- **404** — **cause:** no rule matches the hostname and path; **fix:** check `tofu output ingress`.

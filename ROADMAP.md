@@ -14,7 +14,7 @@ Horizon: through Q4 2027. Order follows the sogeor platform plan.
 - `capi-cluster`: `ClusterClass` once the Talos providers implement the CAPI `v1beta2` contract; review of the
   Talos provider risk in January 2027 (ADR 0006).
 - `providers/selectel` and OpenStack networking for cloud clusters.
-- `mesh-registration` (Headscale pre-auth keys), `dns-records`, `cloudflare-apps`.
+- `mesh-registration` (Headscale pre-auth keys).
 - k3s distribution, Yandex Cloud, VK Cloud and Timeweb providers.
 
 ## Not planned
