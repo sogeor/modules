@@ -26,7 +26,6 @@ and produce either a Talos cluster, an Ansible inventory or Cluster API manifest
 | `modules/ansible-inventory` | Ansible inventory from node contracts | ready (unreleased) |
 | `modules/capi-cluster` | Cluster API manifests (CAPMOX, CAPO; Talos, kubeadm) from a description | ready (unreleased) |
 | `modules/providers/selectel` | Selectel networks and projects for cloud clusters | planned |
-| `modules/mesh-registration` | Headscale pre-auth keys | planned |
 | `modules/dns-records` | Cloudflare DNS records | ready (unreleased) |
 | `modules/cloudflare-apps` | Cloudflare Tunnel hostnames for cluster services | ready (unreleased) |
 | `clusters/*.yaml` | Reference descriptions `mgmt`, `main`, `talos`, `astra` | ready (unreleased) |

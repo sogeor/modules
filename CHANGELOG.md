@@ -54,6 +54,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- ADR 0007: no `mesh-registration` module; Headscale users and pre-auth keys come from the `headscale` Ansible
+  role.
 - `clusters/main.yaml`: the Astra Linux pool moved to `clusters/astra.yaml` — a Cluster API cluster uses one
   provider.
 
