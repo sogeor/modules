@@ -157,6 +157,28 @@ Goal: Ansible reaches a server outside `home` through the mesh, so the `internet
 Check: the server is no longer in `bootstrap_hosts`; `ansible -i inventory.terraform.yml <node name> -m ping`
 succeeds through the mesh. Only then apply the hardening that closes public SSH.
 
+## Prepare a Selectel project for Cluster API
+
+Goal: flavors, the external network and a key pair for a CAPO cluster in Selectel, and the `openstack` input of
+`capi-cluster` built from them.
+
+Preconditions: the project and its service user exist (`bootstrap`); the `OS_*` variables from
+[Configuration](configuration.md#selectel-service-user) are set; the description has pools with
+`provider: selectel`.
+
+1. Call `providers/selectel` and pass `capi_openstack` to `capi-cluster` (see
+   `modules/providers/selectel/examples/basic`).
+2. Apply in the consuming repository and continue with [Render Cluster API manifests](#render-cluster-api-manifests).
+
+Check:
+
+```bash
+openstack flavor list --private
+```
+
+Expected: one `sogeor-<cluster>-<size>` flavor per size of the Selectel pools (except sizes in
+`existing_flavors`).
+
 ## Render Cluster API manifests
 
 Goal: the CAPI objects of a workload cluster, ready for Argo CD in the management cluster.

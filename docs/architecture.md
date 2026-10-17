@@ -43,6 +43,8 @@ flowchart TB
   D[cluster description] --> S[cluster-spec]
   S -->|mechanism = opentofu| P[providers/*]
   S -->|mechanism = capi| C[capi-cluster]
+  S --> O[providers/selectel<br/>flavors, network, key]
+  O -->|capi_openstack| C
   P --> N[normalized nodes]
   N --> T[talos-cluster]
   N --> A[ansible-inventory]
