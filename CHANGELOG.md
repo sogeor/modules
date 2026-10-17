@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `modules/providers/selectel` (`terraform-provider-openstack/openstack` 3.4.0): Cluster API prerequisites of a
+  Selectel project — private flavors for the size catalog, external network lookup, optional key pair — and the
+  `openstack` input of `capi-cluster`; end-to-end test with `clusters/main.yaml`; ADR 0008.
 - `modules/dns-records` (`cloudflare/cloudflare` 5.27.0): A, AAAA, CNAME, TXT, MX and CAA records of a Cloudflare
   zone with checks of names, TTL, proxying and record data.
 - `modules/cloudflare-apps`: remotely managed Cloudflare Tunnel with ingress rules (path rules first, `404`

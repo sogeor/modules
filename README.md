@@ -12,7 +12,7 @@ OpenTofu modules and generators of the sogeor cluster constructor.
 > [policies](policies/conftest/cluster/cluster.rego); Proxmox VE nodes:
 > [`providers/proxmox`](modules/providers/proxmox/README.md); Talos clusters: [`talos-cluster`](modules/talos-cluster/README.md); existing servers and Ansible:
 > [`providers/byo`](modules/providers/byo/README.md), [`ansible-inventory`](modules/ansible-inventory/README.md); Cluster API
-> manifests: [`capi-cluster`](modules/capi-cluster/README.md); Cloudflare:
+> manifests: [`capi-cluster`](modules/capi-cluster/README.md), Selectel: [`providers/selectel`](modules/providers/selectel/README.md); Cloudflare:
 > [`dns-records`](modules/dns-records/README.md), [`cloudflare-apps`](modules/cloudflare-apps/README.md). Other modules follow, see [ROADMAP.md](ROADMAP.md).
 
 ## Overview
@@ -91,6 +91,7 @@ Preview locally: `pip install --require-hashes -r .github/requirements-docs.txt 
 | `hashicorp/helm` | 3.3.0 |
 | `ansible/ansible` | 1.5.0 |
 | `cloudflare/cloudflare` | 5.27.0 |
+| `terraform-provider-openstack/openstack` | 3.4.0 |
 | Talos Linux (talosctl, config contract) | 1.14.2, `v1.14` |
 | Cilium (Helm chart) | 1.20.2 |
 | Cluster API core, kubeadm bootstrap and control plane | 1.14.3 (`v1beta2`) |

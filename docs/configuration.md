@@ -333,6 +333,49 @@ Autoscaled pools: `cluster.x-k8s.io/cluster-api-autoscaler-node-group-{min,max}-
 `capacity.cluster-autoscaler.kubernetes.io/{cpu,memory,ephemeral-disk,labels,taints}`; `replicas` is left to the
 autoscaler (exclude it from Argo CD diffs).
 
+## providers/selectel
+
+Source: `modules/providers/selectel`. Generated reference: `modules/providers/selectel/README.md`.
+Provider: `terraform-provider-openstack/openstack` 3.4.0, configured by the caller with the credentials of the
+Selectel service user (`OS_*` variables). Creates no nodes; acts on pools with `provider: selectel`
+([ADR 0008](adr/0008-selectel-capi-prerequisites.md)).
+
+### Inputs
+
+| Name | Type | Default | Required | Description | Example |
+|---|---|---|---|---|---|
+| `spec` | object | — | yes | `module.<spec>.spec`; needs at least one Selectel pool | `module.spec.spec` |
+| `external_network` | string | — | yes | Name of the external network of the region; looked up at plan time | `external-network` |
+| `dns_nameservers` | list(IPv4) | — | yes | Resolvers for the node subnet created by CAPO | `["198.51.100.53"]` |
+| `volume_type` | string | `null` | no | Root volume type; `null` keeps the project default | `fast.ru-9a` |
+| `existing_flavors` | map(size → name) | `{}` | no | Use existing flavors for these sizes instead of creating them | `{ l = "SL1.4-8192" }` |
+| `flavor_prefix` | string | `sogeor` | no | Prefix of created flavors `<prefix>-<cluster>-<size>` | `sogeor` |
+| `ssh_public_key` | OpenSSH public key | `null` | no | Break-glass key pair `<cluster>-admin` for kubeadm nodes; rejected for Talos | `ssh-ed25519 AAAA… ops@example.com` |
+
+### Outputs
+
+| Name | Description |
+|---|---|
+| `flavors` | Flavor name per size of the Selectel pools |
+| `external_network` | `id` and `name` of the external network |
+| `ssh_key_name` | Key pair name or `null` |
+| `capi_openstack` | `external_network`, `dns_nameservers`, `flavors`, `volume_type`, `ssh_key_name` for the `openstack` input of `capi-cluster` |
+
+### Created objects
+
+| Object | Name | Settings |
+|---|---|---|
+| Flavor per used size not in `existing_flavors` | `<prefix>-<cluster>-<size>` | vCPU and RAM from the size catalog, disk 0, private |
+| Key pair (optional) | `<cluster>-admin` | The given public key |
+
+### Selectel service user
+
+The OpenStack credentials belong to a service user of the project; the service user, its project role and the
+OpenStack RC file are created by the `bootstrap` repository (planned). Pass them as `OS_AUTH_URL`,
+`OS_REGION_NAME`, `OS_PROJECT_ID`, `OS_USER_DOMAIN_NAME`, `OS_USERNAME`, `OS_PASSWORD` from a GitHub
+Environment of the consuming repository. If the project does not allow private flavors, list fixed
+configurations in `existing_flavors`.
+
 ## providers/byo
 
 Source: `modules/providers/byo`. Generated reference: `modules/providers/byo/README.md`. No provider; creates no

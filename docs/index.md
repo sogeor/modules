@@ -5,7 +5,7 @@ A cluster is described once in YAML; the modules validate the description, creat
 and produce either a Talos cluster, an Ansible inventory or Cluster API manifests from it.
 
 !!! note "Status"
-    The cluster description (schema, `cluster-spec`, reference clusters, policies), `providers/proxmox`, `talos-cluster`, `providers/byo`, `ansible-inventory`, `capi-cluster`, `dns-records` and `cloudflare-apps` are ready; the other modules
+    The cluster description (schema, `cluster-spec`, reference clusters, policies), `providers/proxmox`, `talos-cluster`, `providers/byo`, `ansible-inventory`, `capi-cluster`, `providers/selectel`, `dns-records` and `cloudflare-apps` are ready; the other modules
     are added one per release in the order of the [module catalog](#module-catalog).
 
 ## Who this is for
@@ -25,7 +25,7 @@ and produce either a Talos cluster, an Ansible inventory or Cluster API manifest
 | `modules/providers/byo` | Registration of existing servers | ready (unreleased) |
 | `modules/ansible-inventory` | Ansible inventory from node contracts | ready (unreleased) |
 | `modules/capi-cluster` | Cluster API manifests (CAPMOX, CAPO; Talos, kubeadm) from a description | ready (unreleased) |
-| `modules/providers/selectel` | Selectel networks and projects for cloud clusters | planned |
+| `modules/providers/selectel` | Selectel project prerequisites for Cluster API: flavors, external network, key pair | ready (unreleased) |
 | `modules/dns-records` | Cloudflare DNS records | ready (unreleased) |
 | `modules/cloudflare-apps` | Cloudflare Tunnel hostnames for cluster services | ready (unreleased) |
 | `clusters/*.yaml` | Reference descriptions `mgmt`, `main`, `talos`, `astra` | ready (unreleased) |

@@ -66,3 +66,4 @@ nav:
       - "0005 Talos cluster": adr/0005-talos-cluster.md
       - "0006 Cluster API manifests": adr/0006-capi-manifests.md
       - "0007 Mesh registration": adr/0007-mesh-registration.md
+      - "0008 Selectel prerequisites": adr/0008-selectel-capi-prerequisites.md

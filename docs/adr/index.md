@@ -9,6 +9,7 @@
 | [0005](0005-talos-cluster.md) | Talos cluster: lifecycle resources, Cilium at bootstrap, TPM encryption | accepted |
 | [0006](0006-capi-manifests.md) | Cluster API manifests: one provider per cluster, plain manifests | accepted |
 | [0007](0007-mesh-registration.md) | Mesh registration without an OpenTofu provider | accepted |
+| [0008](0008-selectel-capi-prerequisites.md) | Selectel: Cluster API prerequisites, no static nodes | accepted |
 
 New decisions: copy the structure of an existing file, take the next number, start with status
 `proposed`. See [0001](0001-record-architecture-decisions.md).
